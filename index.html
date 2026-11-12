@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1E7A5F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Training">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<title>Home Training Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Layout: day strip on top, workout (wide) beside a sticky diet panel; stacks on phones */
+  --bg:#EEF1EC; --surface:#FFFFFF; --ink:#15211C; --muted:#5B6B64; --line:#CCD5CF;
+  --accent:#1E7A5F; --accent-soft:#DCEEE6; --sport:#B86E0C; --sport-soft:#FBEBD2;
+  --fig:#15211C; --fig-back:#9AA9A2; --cheat:#8B3FA8; --cheat-soft:#F1E3F6;
+  --display:'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --body:'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1513; --surface:#17201C; --ink:#E4EBE7; --muted:#93A39C; --line:#2C3833;
+    --accent:#4FC59D; --accent-soft:#183329; --sport:#F0AE4E; --sport-soft:#3A2A12;
+    --fig:#E4EBE7; --fig-back:#5E6D66; --cheat:#D49BEA; --cheat-soft:#33213B; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1513; --surface:#17201C; --ink:#E4EBE7; --muted:#93A39C; --line:#2C3833;
+  --accent:#4FC59D; --accent-soft:#183329; --sport:#F0AE4E; --sport-soft:#3A2A12;
+  --fig:#E4EBE7; --fig-back:#5E6D66; --cheat:#D49BEA; --cheat-soft:#33213B; color-scheme: dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg); color:var(--ink); font-family:var(--body); font-size:16px; line-height:1.5}
+.wrap{max-width:1200px; margin:0 auto; padding:calc(24px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) calc(48px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left)); display:grid; gap:20px}
+.tabbar{display:none}
+.install{display:none; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--accent); border-radius:14px; padding:12px 14px}
+.install.show{display:flex}
+.install img{width:44px; height:44px; border-radius:10px; flex:none}
+.install p{font-size:.92rem; flex:1}
+.install .x{background:none; border:0; color:var(--muted); font-size:1.4rem; cursor:pointer; padding:4px 8px}
+@media (max-width:900px){
+  .tabbar{display:grid; grid-template-columns:1fr 1fr; gap:8px; position:fixed; left:0; right:0; bottom:0; z-index:40;
+    padding:8px calc(12px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
+    background:var(--surface); border-top:1px solid var(--line); box-shadow:0 -4px 16px rgba(0,0,0,.08)}
+  .tabbar button{font:700 1rem var(--body); padding:12px; border-radius:12px; border:1px solid var(--line); background:var(--bg); color:var(--ink); cursor:pointer}
+  .tabbar button[aria-current="true"]{background:var(--accent); border-color:var(--accent); color:var(--bg)}
+  .wrap{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+  #workout, #diet{scroll-margin-top:12px}
+  .switch{width:100%; justify-content:space-between}
+  .chip, .swap, .btn{min-height:40px}
+}
+h1,h2,h3,h4{font-family:var(--display); font-weight:700; margin:0; text-wrap:balance; letter-spacing:.01em}
+h1{font-size:2.6rem; line-height:1}
+h2{font-size:2rem; line-height:1.05}
+h3{font-size:1.35rem; text-transform:uppercase; letter-spacing:.04em; color:var(--muted)}
+h4{font-size:1.25rem}
+p{margin:0}
+.top{display:flex; flex-wrap:wrap; gap:16px; align-items:flex-end; justify-content:space-between}
+.top p{color:var(--muted); max-width:60ch; margin-top:6px}
+.seg{display:flex; border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--surface)}
+.seg button{font:600 .95rem var(--body); color:var(--muted); background:none; border:0; padding:8px 14px; cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent); color:var(--bg)}
+.seg-wrap{display:grid; gap:4px}
+.seg-wrap small{color:var(--muted)}
+button:focus-visible, input:focus-visible + .track{outline:3px solid var(--accent); outline-offset:2px}
+
+.days{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:8px}
+.day{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:10px 8px; cursor:pointer; text-align:left; color:var(--ink); font-family:var(--body); display:grid; gap:2px; position:relative; min-width:0}
+.day .dn{font:700 1.15rem var(--display); text-transform:uppercase}
+.day .dt{font-size:.85rem; color:var(--muted)}
+.day.str .dt{color:var(--accent); font-weight:600}
+.day .sp{font-size:.75rem; font-weight:700; color:var(--sport); display:flex; align-items:center; gap:4px}
+.day .sp::before{content:""; width:7px; height:7px; border-radius:50%; background:var(--sport)}
+.day[aria-selected="true"]{border-color:var(--accent); box-shadow:inset 0 0 0 2px var(--accent)}
+.day .today{position:absolute; top:8px; right:8px; font-size:.65rem; font-weight:700; text-transform:uppercase; color:var(--muted)}
+
+.main{display:grid; grid-template-columns:minmax(0,1fr) 360px; gap:20px; align-items:start}
+.panel{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:20px; display:grid; gap:18px}
+.dayhead{display:flex; flex-wrap:wrap; gap:12px; justify-content:space-between; align-items:center}
+.pill{display:inline-block; font:700 .8rem var(--body); text-transform:uppercase; letter-spacing:.05em; padding:3px 10px; border-radius:999px; background:var(--accent-soft); color:var(--accent); margin-top:6px}
+.pill.sport{background:var(--sport-soft); color:var(--sport)}
+
+.switch{display:flex; align-items:center; gap:10px; cursor:pointer; font-weight:600; user-select:none; background:var(--bg); border:1px solid var(--line); padding:8px 12px; border-radius:12px}
+.switch input{position:absolute; opacity:0; width:1px; height:1px}
+.track{width:44px; height:26px; border-radius:999px; background:var(--line); position:relative; transition:background .2s; flex:none}
+.track::after{content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:var(--surface); transition:transform .2s; box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.switch input:checked + .track{background:var(--sport)}
+.switch input:checked + .track::after{transform:translateX(18px)}
+
+.note{border-left:4px solid var(--sport); background:var(--sport-soft); padding:10px 14px; border-radius:0 10px 10px 0}
+.note.calm{border-color:var(--accent); background:var(--accent-soft)}
+.section{display:grid; gap:12px}
+.section-head{display:flex; flex-wrap:wrap; gap:8px 16px; align-items:baseline; justify-content:space-between}
+.section-head p{color:var(--muted); font-size:.95rem}
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:12px}
+.ex{border:1px solid var(--line); border-radius:14px; overflow:hidden; display:flex; flex-direction:column; background:var(--surface)}
+.ex canvas{display:block; width:100%; aspect-ratio:220/170; background:var(--bg); border-bottom:1px solid var(--line)}
+.photo{position:relative; aspect-ratio:3/2; background:#111; border-bottom:1px solid var(--line); overflow:hidden}
+.photo img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover}
+.photo img{animation:drift 2.8s ease-in-out infinite}
+.photo img:nth-child(2){animation:blend 2.8s ease-in-out infinite, drift 2.8s ease-in-out infinite}
+.photo .tag{position:absolute; left:8px; bottom:8px; font:700 .72rem var(--body); text-transform:uppercase; letter-spacing:.06em; padding:2px 8px; border-radius:999px; background:rgba(0,0,0,.65); color:#fff}
+.photo .t1{animation:blend 2.8s ease-in-out infinite}
+.photo .t0{animation:blend-r 2.8s ease-in-out infinite}
+/* smooth back-and-forth blend between the start and finish photos, like a looping GIF */
+@keyframes blend{0%,12%{opacity:0} 45%,62%{opacity:1} 95%,100%{opacity:0}}
+@keyframes blend-r{0%,12%{opacity:1} 45%,62%{opacity:0} 95%,100%{opacity:1}}
+@keyframes drift{0%,100%{transform:scale(1)} 50%{transform:scale(1.035)}}
+@media (prefers-reduced-motion: reduce){
+  .photo img, .photo .tag{animation:none}
+  .photo img{width:50%} .photo img:nth-child(2){left:50%; opacity:1}
+  .photo .t1{left:calc(50% + 8px); opacity:1} .photo .t0{opacity:1}
+}
+.pnote{font-size:.85rem; background:var(--accent-soft); color:var(--ink); padding:6px 10px; border-radius:8px}
+.vid{font-weight:700; font-size:.88rem; color:var(--accent); text-decoration:none; justify-self:start}
+.vid:hover{text-decoration:underline}
+.modal{position:fixed; inset:0; background:rgba(0,0,0,.72); display:flex; align-items:center; justify-content:center; padding:16px; z-index:50}
+.modal[hidden]{display:none}
+.mbox{background:var(--surface); color:var(--ink); border-radius:16px; width:min(860px,100%); max-height:100%; overflow:auto; display:grid; gap:12px; padding:16px}
+.mhead{display:flex; justify-content:space-between; align-items:center; gap:12px}
+.mhead h4{font-size:1.6rem}
+.mx{font:700 1.5rem var(--body); line-height:1; background:var(--bg); color:var(--ink); border:1px solid var(--line); border-radius:10px; width:40px; height:40px; cursor:pointer}
+.vwrap{position:relative; aspect-ratio:16/9; background:#000; border-radius:10px; overflow:hidden}
+.vwrap iframe{position:absolute; inset:0; width:100%; height:100%; border:0}
+.mbody .photo{border-radius:10px; border:0}
+.mbody canvas{width:100%; aspect-ratio:220/170; background:var(--bg); border-radius:10px; display:block}
+.mrow{display:flex; flex-wrap:wrap; gap:10px 16px; align-items:center}
+.mrow .btn{text-decoration:none}
+body.locked{overflow:hidden}
+.vid.more{font-weight:600; color:var(--muted); margin-left:12px}
+.ex-body{padding:12px 14px 14px; display:grid; gap:8px}
+.ex-top{display:flex; justify-content:space-between; gap:8px; align-items:baseline}
+.sets{font:700 1.05rem var(--display); color:var(--accent); white-space:nowrap; font-variant-numeric:tabular-nums}
+.cues{margin:0; padding-left:18px; font-size:.93rem}
+.prog{font-size:.85rem; color:var(--muted); border-top:1px dashed var(--line); padding-top:8px}
+.prog b{color:var(--ink)}
+.warm{display:grid; grid-template-columns:minmax(200px,260px) 1fr; gap:14px; align-items:center}
+.warm ul{margin:0; padding-left:18px}
+
+.diet{position:sticky; top:16px}
+.kcal{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap}
+.kcal strong{font:700 2.2rem var(--display); font-variant-numeric:tabular-nums; line-height:1}
+.kcal span{color:var(--muted); font-size:.9rem}
+.meals{display:grid; gap:10px; margin:0; padding:0; list-style:none}
+.meals li{display:grid; grid-template-columns:78px 1fr; gap:10px; padding-bottom:10px; border-bottom:1px solid var(--line)}
+.meals li:last-child{border-bottom:0; padding-bottom:0}
+.meals .when{font:700 .8rem var(--body); text-transform:uppercase; letter-spacing:.05em; color:var(--muted); padding-top:2px}
+.meals li.add .when{color:var(--sport)}
+.rules{margin:0; padding-left:18px; font-size:.92rem; display:grid; gap:6px}
+.checkin{display:grid; gap:12px; background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:14px}
+.checkin p{font-size:.95rem}
+.checkin.night{gap:8px; padding:12px 14px}
+.nsnack b{font-size:1.02rem}
+.q{display:grid; gap:6px}
+.q > span{font-weight:700; font-size:.9rem}
+.chips{display:flex; flex-wrap:wrap; gap:6px}
+.chip{font:600 .88rem var(--body); color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:5px 12px; cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--bg)}
+.btn{font:700 .95rem var(--body); background:var(--accent); color:var(--bg); border:0; border-radius:10px; padding:10px 14px; cursor:pointer}
+.btn.ghost{background:none; color:var(--accent); border:1px solid var(--line); padding:6px 12px; font-size:.85rem}
+.swap{font:600 .78rem var(--body); color:var(--accent); background:none; border:1px solid var(--line); border-radius:999px; padding:2px 10px; cursor:pointer; margin-top:4px; justify-self:start}
+.meals li > div{display:grid; gap:2px}
+.meals li.cheat .when{color:var(--cheat)}
+.meals li.cheat > div > span:first-child{font-weight:700}
+.sub{font-size:.85rem; color:var(--muted)}
+.pill.cheat{background:var(--cheat-soft); color:var(--cheat)}
+.day .ch{font-size:.75rem; font-weight:700; color:var(--cheat)}
+.settings{display:flex; flex-wrap:wrap; gap:14px; align-items:flex-end}
+.field{display:grid; gap:4px}
+.field label{font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted)}
+.field select{font:600 .95rem var(--body); color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:8px 10px}
+.foot{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px}
+.foot .panel{gap:8px}
+.foot p{font-size:.95rem}
+
+@media (max-width:900px){
+  .main{grid-template-columns:1fr}
+  .diet{position:static}
+}
+@media (max-width:640px){
+  h1{font-size:2.1rem}
+  .days{grid-template-columns:none; grid-auto-flow:column; grid-auto-columns:minmax(92px,1fr); overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:4px; margin:0 -4px; padding-left:4px; padding-right:4px}
+  .day{scroll-snap-align:start}
+  .day .today{position:static; order:-1; font-size:.62rem; color:var(--accent)}
+  .top p{display:none}
+  .top{gap:12px}
+  .settings{width:100%; gap:10px}
+  .seg button{padding:8px 10px; font-size:.88rem}
+  .seg-wrap small{display:none}
+  .warm{grid-template-columns:1fr}
+  .panel{padding:16px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Home Training Plan</h1>
+      <p>Build muscle and lose fat at home: 3 strength days and 4 recovery or sport days a week. Pick a day, then switch on <b>Playing sport today</b> if you have padel, futsal or cricket. The workout and meals adjust.</p>
+    </div>
+    <div class="settings">
+      <div class="field">
+        <label for="cheatSel">Cheat day</label>
+        <select id="cheatSel">
+          <option value="0">Monday</option><option value="1">Tuesday</option><option value="2">Wednesday</option>
+          <option value="3">Thursday</option><option value="4">Friday</option><option value="5">Saturday</option>
+          <option value="6">Sunday</option><option value="-1">None this week</option>
+        </select>
+      </div>
+      <div class="seg-wrap">
+        <div class="seg" role="group" aria-label="Week rotation">
+          <button id="wkA" type="button">Week 1: A · B · A</button>
+          <button id="wkB" type="button">Week 2: B · A · B</button>
+        </div>
+        <small>Switch each week so A and B even out.</small>
+      </div>
+    </div>
+  </header>
+
+  <div class="install" id="install" role="region" aria-label="Install the app">
+    <img src="apple-touch-icon.png" alt="">
+    <p id="installText">Add this plan to your home screen to open it like an app, even offline.</p>
+    <button class="btn" id="installBtn" type="button" hidden>Install</button>
+    <button class="x" id="installX" type="button" aria-label="Dismiss">×</button>
+  </div>
+
+  <nav class="days" id="days" role="tablist" aria-label="Days of the week"></nav>
+
+  <div class="main">
+    <section class="panel" id="workout" aria-live="polite"></section>
+    <aside class="panel diet" id="diet"></aside>
+  </div>
+
+  <div class="foot">
+    <div class="panel">
+      <h3>How to progress</h3>
+      <p>Rest 60–90 s between sets. The last 1–2 reps of each set should feel hard. When you hit the top of the rep range on every set, switch to the harder version shown on that card.</p>
+    </div>
+    <div class="panel">
+      <h3>Check-in</h3>
+      <p>Weigh yourself twice a week, first thing in the morning. Measure your waist and take a photo every 2 weeks. If your weight hasn't moved in 2 weeks, eat about 150–200 kcal less a day (for example, half a roti less at dinner).</p>
+    </div>
+    <div class="panel">
+      <h3>Doctor first</h3>
+      <p>Check your daily protein target with your doctor before raising it, and don't start creatine or protein powders without their OK. Stop any exercise that causes sharp joint pain.</p>
+    </div>
+  </div>
+  <p class="sub">Exercise photos: <a href="https://github.com/yuhonas/free-exercise-db" target="_blank" rel="noopener" style="color:inherit">Free Exercise DB</a> (public domain).</p>
+</div>
+
+<nav class="tabbar" aria-label="Sections">
+  <button type="button" id="tabW" aria-current="true">Workout</button>
+  <button type="button" id="tabF" aria-current="false">Food</button>
+</nav>
+<div class="modal" id="vm" hidden>
+  <div class="mbox" role="dialog" aria-modal="true" aria-labelledby="vmt">
+    <div class="mhead"><h4 id="vmt">Exercise</h4><button class="mx" id="vmx" type="button" aria-label="Close video">×</button></div>
+    <div class="mbody" id="vmb"></div>
+  </div>
+</div>
+<script>
+/* ---------- Exercise library: poses for animated stick-figure demos ---------- */
+// Pose: hip, sh (shoulder), h (hands [front, back]), f (feet [front, back]), hd (head offset), arch (spine curve)
+const P = {
+  stand:{hip:[110,80], sh:[110,36], h:[112,84], f:[110,140]},
+  plankTop:{hip:[93.3,112.3], sh:[132.3,92], h:[132,140], f:[40,140]},
+};
+const EX = {
+  jacks:{name:'Jumping jacks', front:true, dur:350, frames:[
+    {hip:[110,82], sh:[110,36], hd:[0,-13], h:[[102,82],[118,82]], f:[[104,140],[116,140]]},
+    {hip:[110,84], sh:[110,36], hd:[0,-13], h:[[88,-6],[132,-6]], f:[[82,140],[138,140]]}]},
+  pushup:{name:'Push-ups', dur:1100, frames:[
+    P.plankTop,
+    {hip:[99.6,133], sh:[143,128], h:[132,140], f:[40,140]}],
+    cues:['Body in one straight line, head to heels','Chest close to the floor, then press up'],
+    easy:'hands on a chair', hard:'feet on a chair, then archer push-ups'},
+  bss:{name:'Bulgarian split squat', dur:1200, props:[{t:'chair',x:38,w:36,back:'left'}], frames:[
+    {hip:[108,86], sh:[112,42], h:[114,86], f:[[135,140],[60,108]]},
+    {hip:[102,112], sh:[108,68], h:[110,112], f:[[135,140],[60,108]]}],
+    cues:['Back foot laces-down on the chair','Front knee tracks over toes; drop straight down'],
+    easy:'regular split squat, both feet on the floor', hard:'hold a loaded backpack'},
+  pike:{name:'Pike push-ups', dur:1200, elbow:-1, frames:[
+    {hip:[102,92], sh:[139.2,115.5], h:[178,140], f:[66,140]},
+    {hip:[112,98], sh:[148,122], h:[178,140], f:[66,140]}],
+    cues:['Hips high, body in an upside-down V','Lower the top of your head in front of your hands'],
+    easy:'smaller hip bend, shorter range', hard:'feet up on a chair'},
+  bridge:{name:'Single-leg glute bridge', dur:1200, frames:[
+    {hip:[102,134], sh:[58,134], hd:[-13,0], h:[106,140], f:[[140,140],[150,100]]},
+    {hip:[100,108], sh:[60,130], hd:[-13,1], h:[106,140], f:[[140,140],[152,80]]}],
+    cues:['Push through the heel of the planted foot','Squeeze your glutes for 1 s at the top'],
+    easy:'both feet down', hard:'shoulders on the sofa edge (hip thrust)'},
+  dips:{name:'Chair dips', dur:1100, props:[{t:'chair',x:40,w:55,back:'left'}], frames:[
+    {hip:[96,104], sh:[94,60], h:[92,108], f:[138,140]},
+    {hip:[98,126], sh:[96,82], h:[92,108], f:[138,140]}],
+    cues:['Use a chair that won\'t slide; back it against a wall','Lower until elbows reach 90°, no deeper'],
+    easy:'bend your knees more, feet closer', hard:'legs straight, then feet on a second chair'},
+  plank:{name:'Plank', dur:1600, still:0, frames:[
+    {hip:[97.7,126], sh:[140,116], h:[162,140], f:[40,140]},
+    {hip:[97.7,124.6], sh:[140,115.6], h:[162,140], f:[40,140]}],
+    cues:['Elbows under shoulders, squeeze glutes','Don\'t let your hips sag or pike up'],
+    easy:'from the knees', hard:'lift one foot, swap every 10 s'},
+  invrow:{name:'Table rows', dur:1200, elbow:-1, props:[{t:'table',x1:46,x2:134,y:58}], frames:[
+    {hip:[96.4,119.5], sh:[137.7,104.4], h:[130,60], f:[40,140]},
+    {hip:[89.2,105.6], sh:[125.2,80.3], h:[130,60], f:[40,140]}],
+    cues:['Use a solid table; test that it won\'t tip first','Pull your chest to the edge, body straight'],
+    easy:'bend your knees, walk feet closer', hard:'legs straight, then feet on a chair'},
+  squat:{name:'Tempo squats', dur:[3000,1000,1000,600], frames:[
+    {hip:[106,80], sh:[108,36], h:[110,84], f:[110,140]},
+    {hip:[86,112], sh:[108,72], h:[150,74], f:[110,140]},
+    {hip:[86,112], sh:[108,72], h:[150,74], f:[110,140]},
+    {hip:[106,80], sh:[108,36], h:[110,84], f:[110,140]}],
+    cues:['3 s down, 1 s pause at the bottom, stand up','Heels stay down, chest up'],
+    easy:'squat to a chair', hard:'3 s pause at the bottom, then split squats'},
+  bprow:{name:'Backpack row', dur:1100, props:[{t:'chair',x:150,w:36,back:'right'},{t:'bag'}], frames:[
+    {hip:[90,82], sh:[134,90], h:[[134,138],[165,108]], f:[[88,140],[100,140]]},
+    {hip:[90,82], sh:[134,90], h:[[120,100],[165,108]], f:[[88,140],[100,140]]}],
+    cues:['Fill a backpack with books; one hand on a chair','Pull the bag to your hip, flat back'],
+    easy:'lighter bag', hard:'add books; take 3 s to lower'},
+  lunge:{name:'Reverse lunges', dur:1000, frames:[
+    {hip:[110,80], sh:[110,36], h:[112,84], f:[[112,140],[108,140]]},
+    {hip:[96,110], sh:[100,66], h:[102,112], f:[[112,140],[55,138]]}],
+    cues:['Step back, lower the back knee toward the floor','Push through the front heel to stand'],
+    easy:'hold a wall for balance', hard:'wear the loaded backpack'},
+  yraise:{name:'Prone Y-raise / Superman', dur:1200, frames:[
+    {hip:[100,136], sh:[144,134], hd:[13,-2], h:[190,140], f:[40,138]},
+    {hip:[100,135], sh:[143,128], hd:[13,-5], h:[186,116], f:[42,130]}],
+    cues:['Lie face down, arms in a Y, thumbs up','Lift arms, chest and legs; hold 1 s'],
+    easy:'lift arms only', hard:'hold 2 s; hold water bottles'},
+  deadbug:{name:'Dead bugs', dur:900, frames:[
+    {hip:[114,134], sh:[70,134], hd:[-13,-1], h:[70,86], f:[144,104]},
+    {hip:[114,134], sh:[70,134], hd:[-13,-1], h:[[24,128],[70,86]], f:[[144,104],[172,126]]},
+    {hip:[114,134], sh:[70,134], hd:[-13,-1], h:[70,86], f:[144,104]},
+    {hip:[114,134], sh:[70,134], hd:[-13,-1], h:[[70,86],[24,128]], f:[[172,126],[144,104]]}],
+    cues:['Lower back pressed into the floor','Opposite arm and leg out, slow and controlled'],
+    easy:'move the legs only', hard:'3 s out, 3 s back'},
+  burpee:{name:'Burpees', dur:[500,400,400,500,350,350], frames:[
+    P.stand,
+    {hip:[96,114], sh:[128,88], h:[138,140], f:[108,140]},
+    P.plankTop,
+    {hip:[96,114], sh:[128,88], h:[138,140], f:[108,140]},
+    P.stand,
+    {hip:[110,66], sh:[110,22], h:[126,-16], f:[112,126]}],
+    cues:['Hands down, jump back to plank','Jump feet in, stand and hop'],
+    easy:'step back instead of jumping', hard:'add a push-up'},
+  climber:{name:'Mountain climbers', dur:350, frames:[
+    {hip:[93,112], sh:[132,92], h:[132,140], f:[[112,136],[40,140]]},
+    {hip:[93,112], sh:[132,92], h:[132,140], f:[[40,140],[112,136]]}],
+    cues:['Hands under shoulders, hips low','Drive knees to chest, fast'],
+    easy:'slow, step the feet', hard:'go faster'},
+  sqjump:{name:'Squat jumps', dur:[600,400], frames:[
+    {hip:[86,112], sh:[108,72], h:[84,104], f:[110,140]},
+    {hip:[110,64], sh:[110,20], h:[122,-18], f:[110,124]}],
+    cues:['Squat, swing arms, jump','Land softly with bent knees'],
+    easy:'bodyweight squats, no jump', hard:'pause 2 s at the bottom first'},
+  walk:{name:'Brisk walk', dur:400, frames:[
+    {hip:[110,80], sh:[112,36], h:[[100,82],[124,80]], f:[[128,140],[92,140]]},
+    {hip:[110,78], sh:[112,34], h:[[112,82],[112,82]], f:[[110,140],[112,126]]},
+    {hip:[110,80], sh:[112,36], h:[[124,80],[100,82]], f:[[92,140],[128,140]]},
+    {hip:[110,78], sh:[112,34], h:[[112,82],[112,82]], f:[[112,126],[110,140]]}],
+    cues:['Fast enough that talking takes effort','Or reach 8–10k steps across the day']},
+  catcow:{name:'Cat-cow', dur:1500, frames:[
+    {hip:[82,106], sh:[124,92], arch:-8, hd:[12,-7], h:[124,140], f:[52,140]},
+    {hip:[82,104], sh:[124,92], arch:12, hd:[8,11], h:[124,140], f:[52,140]}],
+    cues:['Breathe in: chest forward, look up','Breathe out: round your back, tuck chin']},
+  hipflex:{name:'Hip flexor stretch', dur:1800, frames:[
+    {hip:[96,114], sh:[98,70], h:[102,114], f:[[140,140],[54,140]]},
+    {hip:[104,116], sh:[106,72], h:[110,116], f:[[140,140],[54,140]]}],
+    cues:['Back knee on a cushion, squeeze that glute','Shift hips forward gently; no arching']},
+};
+
+/* ---------- Plans ---------- */
+const WORK = {
+  A:{title:'Strength Day A: Push + Legs', list:[
+    ['pushup','4 × 8–15','upper'],['bss','3 × 8–12 / leg','legs'],['pike','3 × 6–10','upper'],
+    ['bridge','3 × 10–15 / leg','legs'],['dips','3 × 8–12','upper'],['plank','3 × 30–60 s','core']]},
+  B:{title:'Strength Day B: Pull + Legs', list:[
+    ['invrow','4 × 8–12','upper'],['squat','4 × 12–20','legs'],['bprow','3 × 10–15 / arm','upper'],
+    ['lunge','3 × 10 / leg','legs'],['yraise','3 × 12','upper'],['deadbug','3 × 10 / side','core']]},
+};
+const DIET = [
+  {b:'2-egg omelette with onion, tomato and hari mirch + 1 whole-wheat roti + green tea', l:'Chicken karahi (palm-sized, 1 tbsp oil) + big salad + 1 roti', s:'Bowl of dahi with cucumber + 1 apple', d:'Moong daal + lauki sabzi + 1 roti'},
+  {b:'Oats cooked in milk with half a banana and 5–6 almonds', l:'1 cup chicken pulao + raita + kachumber salad', s:'1 orange or guava + chai with less sugar', d:'Grilled or masala fish + sautéed vegetables + 1 roti'},
+  {b:'2 boiled eggs + 2 slices brown bread + cucumber', l:'Masoor daal + 1 cup rice + salad + dahi', s:'Handful of roasted chana + green tea', d:'Grilled chicken tikka or boti + mint raita + salad + 1 roti'},
+  {b:'2 besan chillas with onion and tomato + dahi', l:'Mixed sabzi (bhindi, tori or palak) + 1 roti + dahi', s:'Salted lassi (no sugar) + 1 fruit', d:'Big bowl of chicken vegetable shorba + 1 roti'},
+  {b:'Anda bhurji (2 eggs) + 1 roti or 2 slices toast', l:'Chicken biryani, about 1.5 cups, + raita + salad. One plate only.', s:'Fruit chaat without added sugar', d:'Daal + palak sabzi + 1 roti'},
+  {b:'Daliya cooked in milk + 2–3 walnuts', l:'Chicken wrap: whole-wheat roti, grilled chicken, salad, yogurt sauce', s:'Dahi + 1 apple', d:'Grilled fish or chicken + vegetables + ½ cup rice'},
+  {b:'2 eggs + 2 slices toast + 1 banana', l:'Chicken pulao, or rice and daal, + raita + salad', s:'Lassi or dahi + fruit', d:'Light moong daal khichdi + dahi'},
+];
+/* Meal pools for the daily check-in. p = main protein, m = kind of day (home / out / quick) */
+const ALL = ['home','out','quick'];
+const POOL = {
+  b:[
+    {t:'2-egg omelette with onion, tomato and hari mirch + 1 whole-wheat roti', m:['home']},
+    {t:'Anda bhurji (2 eggs) + 2 slices brown toast', m:['home','quick']},
+    {t:'2 boiled eggs + 1 banana + green tea', m:['quick','out']},
+    {t:'2 besan chillas + dahi', m:['home']},
+    {t:'Oats cooked in milk with half a banana and 5–6 almonds', m:['home','quick']},
+    {t:'Daliya cooked in milk + 2–3 walnuts', m:['home']},
+    {t:'Dhaba breakfast: 2-egg omelette + 1 plain paratha (no extra butter) + doodh patti, less sugar', m:['out']},
+  ],
+  l:[
+    {t:'Chicken karahi (1 tbsp oil) + big salad + 1 roti', p:'chicken', m:['home']},
+    {t:'1 cup chicken pulao + raita + kachumber salad', p:'chicken', m:['home','out']},
+    {t:'Chicken wrap: whole-wheat roti, grilled chicken, salad, yogurt sauce', p:'chicken', m:['home','quick']},
+    {t:'Chicken tikka or seekh kebab (2 pieces) + salad + half a naan', p:'chicken', m:['out']},
+    {t:'Grilled chicken sandwich + side salad. Skip the fries.', p:'chicken', m:['out','quick']},
+    {t:'Leftover chicken salan + 1 roti + cucumber', p:'chicken', m:['quick']},
+    {t:'Masala fish + sabzi + 1 roti', p:'fish', m:['home']},
+    {t:'Grilled fish + salad + half a naan', p:'fish', m:['out']},
+    {t:'Fish curry + ½ cup rice + salad', p:'fish', m:['home','quick']},
+    {t:'Egg curry (2 eggs) + 1 roti + salad', p:'egg', m:['home']},
+    {t:'Egg sandwich on brown bread + dahi', p:'egg', m:['quick','out']},
+    {t:'Masoor daal + 1 cup rice + salad + dahi', p:'veg', m:['home','out']},
+    {t:'Chana chaat bowl (no sweet chutney) + dahi', p:'veg', m:['quick','out']},
+    {t:'Mixed sabzi (bhindi, tori or palak) + 1 roti + dahi', p:'veg', m:['home']},
+  ],
+  s:[
+    {t:'Bowl of dahi + 1 apple', m:ALL}, {t:'Handful of roasted chana + green tea', m:ALL},
+    {t:'Guava or orange + a small handful of peanuts', m:ALL}, {t:'Salted lassi (no sugar) + 1 fruit', m:['home','out']},
+    {t:'Fruit chaat without added sugar', m:['home','out']}, {t:'Boiled egg + cucumber slices', m:['home','quick']},
+  ],
+  d:[
+    {t:'Grilled chicken tikka or boti + mint raita + salad + 1 roti', p:'chicken', m:['home','out']},
+    {t:'Big bowl of chicken vegetable shorba + 1 roti', p:'chicken', m:['home','quick']},
+    {t:'Chicken jalfrezi (light oil) + 1 roti', p:'chicken', m:['home']},
+    {t:'Chicken tikka + salad. Skip the naan or have half.', p:'chicken', m:['out']},
+    {t:'Grilled fish + sautéed vegetables + 1 roti', p:'fish', m:['home','out']},
+    {t:'Fish curry + ½ cup rice + salad', p:'fish', m:['home']},
+    {t:'Pan-fried fish fillet + salad + 1 roti', p:'fish', m:['quick']},
+    {t:'Egg and palak bhurji + 1 roti', p:'egg', m:['home','quick']},
+    {t:'Eggs cooked in spiced tomato (shakshuka style) + 1 roti', p:'egg', m:['home']},
+    {t:'Moong daal + lauki sabzi + 1 roti', p:'veg', m:['home']},
+    {t:'Moong daal khichdi + dahi', p:'veg', m:['home','quick']},
+    {t:'Daal + 1 roti + salad at a dhaba', p:'veg', m:['out']},
+  ],
+};
+const CHEAT = [
+  'Chicken biryani, a full plate + raita',
+  '2–3 slices of chicken pizza',
+  'Zinger or grilled chicken burger + small fries',
+  'Chicken karahi with 1 naan',
+  'BBQ: chicken tikka, malai boti and seekh kebab + 1 naan',
+  'Chinese: chicken chowmein or fried rice + one side, shared',
+  'Chicken shawarma platter with fries and garlic sauce',
+];
+const NIGHT = [
+  ['Warm haldi doodh, 1 cup, no sugar', 120],
+  ['Small bowl of dahi with cucumber and a pinch of zeera', 100],
+  ['Cucumber and carrot sticks with chaat masala', 40],
+  ['1 boiled egg with salt and pepper', 80],
+  ['1 apple or guava', 80],
+  ['Small handful of roasted chana', 100],
+  ['2 cups of plain popcorn, made at home with no butter', 70],
+  ['Mug of clear chicken yakhni', 60],
+  ['Saunf or podina tea, no sugar', 5],
+];
+let nightIdx = Math.floor(Math.random()*NIGHT.length);
+const Q = [
+  {k:'mode', label:'What kind of day is it?', opts:[['home','Home-cooked'],['out','Eating out'],['quick','Busy, need quick food']]},
+  {k:'prot', label:'Main protein today?', opts:[['any','Mix it up'],['chicken','Chicken'],['fish','Fish'],['egg','Eggs'],['veg','Daal & veg']]},
+  {k:'hungry', label:'How hungry are you?', opts:[['normal','Normal'],['extra','Extra hungry']]},
+];
+const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+
+/* ---------- State ---------- */
+const store = {
+  get(k,d){ try{ const v = localStorage.getItem(k); return v===null ? d : JSON.parse(v); }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+const todayIdx = (new Date().getDay()+6)%7;
+let sel = todayIdx;
+let sport = store.get('htp-sport', [false,false,false,false,false,false,true]);
+let week = store.get('htp-week', 'A');
+let cheatDay = store.get('htp-cheat', 6);
+let food = store.get('htp-food', {});
+let draft = {mode:'home', prot:'any', hungry:'normal'};
+const dateKey = i => { const d=new Date(); d.setDate(d.getDate()+(i-todayIdx)); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); };
+function candidates(slot, a){
+  const pool = POOL[slot], byProt = it => !it.p || a.prot==='any' || it.p===a.prot;
+  let c = pool.map((it,i)=>i).filter(i=>pool[i].m.includes(a.mode) && byProt(pool[i]));
+  if(!c.length) c = pool.map((it,i)=>i).filter(i=>byProt(pool[i]));
+  if(!c.length) c = pool.map((it,i)=>i);
+  return c;
+}
+function randFrom(arr, not){ const c = arr.length>1 ? arr.filter(x=>x!==not) : arr; return c[Math.floor(Math.random()*c.length)]; }
+function makePlan(a){
+  const pick = {}; ['b','l','s','d'].forEach(s=>pick[s]=randFrom(candidates(s,a)));
+  pick.c = Math.floor(Math.random()*CHEAT.length);
+  return {a:{...a}, pick};
+}
+function saveFood(){
+  const keep = {}; const now = Date.now();
+  Object.keys(food).forEach(k=>{ const [y,m,d]=k.split('-').map(Number); if(now - new Date(y,m-1,d).getTime() < 21*864e5) keep[k]=food[k]; });
+  food = keep; store.set('htp-food', food);
+}
+
+const typeOf = i => { const rot = week==='A' ? 'ABA' : 'BAB'; return i===0?rot[0]: i===2?rot[1]: i===4?rot[2]: 'R'; };
+
+/* ---------- Rendering ---------- */
+/* Real photos (start + finish) from Free Exercise DB, public domain. note = how the photo differs from the home version */
+const PHOTO = {
+  jacks:{note:'Photo shows star jumps. Regular jumping jacks work just as well.', q:'jumping jacks proper form'},
+  pushup:{q:'push up proper form'},
+  bss:{note:'Photo shows a regular split squat. For the Bulgarian version, rest your back foot on a chair.', q:'bulgarian split squat bodyweight form'},
+  bridge:{q:'single leg glute bridge form'},
+  dips:{note:'Use a sturdy chair instead of a bench.', q:'chair dips proper form'},
+  plank:{q:'forearm plank proper form'},
+  invrow:{note:'Photo uses a bar. At home, lie under a sturdy dining table and grip its edge.', q:'inverted row under table at home'},
+  squat:{q:'bodyweight squat proper form'},
+  bprow:{note:'Use a loaded backpack and a chair instead of a dumbbell and bench.', q:'one arm backpack row at home'},
+  lunge:{note:'Same move without weights. Hold the backpack once it gets easy.', q:'reverse lunge bodyweight form'},
+  yraise:{q:'superman exercise form'},
+  deadbug:{q:'dead bug exercise proper form'},
+  climber:{q:'mountain climbers proper form'},
+  sqjump:{q:'squat jump proper form'},
+  catcow:{q:'cat cow stretch'},
+  hipflex:{q:'kneeling hip flexor stretch'},
+};
+/* One chosen YouTube form video per exercise */
+const VID = {
+  jacks:'nGaXj3kkmrU', pushup:'WDIpL0pjun0', bss:'zFbhMqkvg6o', pike:'paCOGgmLCA0', bridge:'3NXv0Nany-Q',
+  dips:'AWz_7B1cch0', plank:'A2b2EmIg0dA', invrow:'6NTruShwwKk', squat:'ZLJBfYF_oO0', bprow:'puaKVJOY8eg',
+  lunge:'-HjB2x75haE', yraise:'DQFTp5n0uh0', deadbug:'bxn9FBrt4-A', burpee:'wGvBfVeCNko', climber:'gW-q50V6Z_0',
+  sqjump:'tZSYZdtbONc', catcow:'Fa4ZMS5M7xA', hipflex:'qWMXPKLFF2A', walk:'2VVjeqedgQY',
+};
+const VQ = {pike:'pike push up proper form', burpee:'burpee proper form beginner', walk:'brisk walking technique'};
+function card(id, sets){
+  const e = EX[id], ph = PHOTO[id];
+  const prog = e.easy ? `<p class="prog"><b>Easier:</b> ${e.easy}. <b>Harder:</b> ${e.hard}.</p>` : '';
+  const media = ph
+    ? `<div class="photo" role="img" aria-label="Photos of ${e.name}: start and finish positions"><img src="img/${id}-0.jpg" alt="" loading="lazy"><img src="img/${id}-1.jpg" alt="" loading="lazy"><span class="tag t0">Start</span><span class="tag t1">Finish</span></div>`
+    : `<canvas data-ex="${id}" role="img" aria-label="Animated demo of ${e.name}"></canvas>`;
+  const q = ph ? ph.q : (VQ[id] || e.name);
+  const vid = VID[id]
+    ? `<div><a class="vid" data-id="${id}" href="https://www.youtube.com/watch?v=${VID[id]}" target="_blank" rel="noopener">Watch form video ↗</a><a class="vid more" href="https://www.youtube.com/results?search_query=${encodeURIComponent(q)}" target="_blank" rel="noopener">More videos</a></div>`
+    : `<a class="vid" href="https://www.youtube.com/results?search_query=${encodeURIComponent(q)}" target="_blank" rel="noopener">Watch videos ↗</a>`;
+  return `<article class="ex">${media}
+  <div class="ex-body"><div class="ex-top"><h4>${e.name}</h4><span class="sets">${sets}</span></div>
+  ${ph && ph.note ? `<p class="pnote">${ph.note}</p>` : ''}
+  <ul class="cues">${(e.cues||[]).map(c=>`<li>${c}</li>`).join('')}</ul>${prog}${vid}</div></article>`;
+}
+function renderDays(){
+  document.getElementById('days').innerHTML = DAYS.map((d,i)=>{
+    const t = typeOf(i);
+    return `<button class="day ${t!=='R'?'str':''}" role="tab" aria-selected="${i===sel}" data-i="${i}" type="button">
+      ${i===todayIdx?'<span class="today">Today</span>':''}
+      <span class="dn">${d.slice(0,3)}</span>
+      <span class="dt">${t==='R'?'Recovery':'Strength '+t}</span>
+      ${sport[i]?'<span class="sp">Sport</span>':'<span class="sp" style="visibility:hidden">Sport</span>'}
+      ${i===cheatDay?'<span class="ch">Cheat day</span>':''}
+    </button>`;}).join('');
+  document.querySelectorAll('.day').forEach(b=>b.onclick=()=>{ sel=+b.dataset.i; render(); });
+  document.getElementById('wkA').setAttribute('aria-pressed', week==='A');
+  document.getElementById('wkB').setAttribute('aria-pressed', week==='B');
+  document.getElementById('cheatSel').value = String(cheatDay);
+  // keep the selected day visible in the swipeable strip on phones
+  const strip = document.getElementById('days'), cur = strip.querySelector('[aria-selected="true"]');
+  if(cur && strip.scrollWidth > strip.clientWidth) strip.scrollLeft = cur.offsetLeft - strip.offsetLeft - 8;
+}
+function renderWorkout(){
+  const t = typeOf(sel), sp = sport[sel];
+  let h = `<div class="dayhead"><div><h2>${DAYS[sel]}</h2>
+    <span class="pill ${sp?'sport':''}">${t==='R' ? (sp?'Game day + recovery':'Recovery day') : (sp?'Strength '+t+' · short version':WORK[t].title)}</span></div>
+    <label class="switch" for="sportToggle"><input type="checkbox" id="sportToggle" ${sp?'checked':''}><span class="track"></span><span>Playing sport today</span></label></div>`;
+
+  if(t!=='R'){
+    const list = sp ? WORK[t].list.filter(x=>x[2]!=='legs') : WORK[t].list;
+    if(sp) h += `<p class="note">Sport day: your legs get worked in the game, so do the upper-body and core moves only, <b>2 sets each</b> (about 15 min), and skip the finisher. Prefer the full session? Do it the morning after instead.</p>`;
+    h += `<div class="section"><div class="section-head"><h3>Warm-up · 5 min</h3></div>
+      <div class="warm">${card('jacks','1 min')}<ul><li>Arm circles, 10 each way</li><li>10 slow bodyweight squats</li><li>10 hip hinges (hands on hips, push hips back)</li><li>5 cat-cows</li></ul></div></div>`;
+    h += `<div class="section"><div class="section-head"><h3>${sp?'Main work · upper + core':'Main work'}</h3><p>Rest 60–90 s between sets</p></div>
+      <div class="grid">${list.map(([id,s])=>card(id, sp ? s.replace(/^\d/,'2') : s)).join('')}</div></div>`;
+    if(!sp) h += `<div class="section"><div class="section-head"><h3>Finisher · 8–10 min</h3><p>3–4 rounds, 60 s rest between rounds</p></div>
+      <div class="grid">${card('burpee','10 reps')}${card('climber','20 reps')}${card('sqjump','10 reps')}</div></div>`;
+  } else if(sp){
+    h += `<p class="note">Game day. The game is today's cardio, so skip the walk. Afterwards, walk easy for 5 minutes, then do these two stretches.</p>
+      <div class="section"><div class="section-head"><h3>After the game · 10 min</h3></div>
+      <div class="grid">${card('catcow','10 slow reps')}${card('hipflex','30–45 s / side')}</div></div>`;
+  } else {
+    h += `<p class="note calm">Recovery day: move, don't train hard. Muscle grows while you recover.</p>
+      <div class="section"><div class="section-head"><h3>Cardio</h3></div><div class="grid">${card('walk','30–40 min')}</div></div>
+      <div class="section"><div class="section-head"><h3>Mobility · 10 min</h3></div>
+      <div class="grid">${card('catcow','10 slow reps')}${card('hipflex','30–45 s / side')}</div></div>`;
+  }
+  const w = document.getElementById('workout');
+  w.innerHTML = h;
+  document.getElementById('sportToggle').onchange = e => { sport[sel] = e.target.checked; store.set('htp-sport', sport); render(); };
+}
+function renderDiet(){
+  const d = DIET[sel], sp = sport[sel], cheat = sel===cheatDay, key = dateKey(sel), plan = food[key];
+  const hungry = plan && plan.a.hungry==='extra';
+  // meals: [label, text, class, swap-slot, sub-note]
+  let meals;
+  if(plan){
+    const pk = plan.pick;
+    meals = [['Breakfast',POOL.b[pk.b].t,'','b'],['Lunch',POOL.l[pk.l].t,'','l'],
+      cheat ? ['Snack','Fruit only, or skip it and save room for tonight'] : ['Snack',POOL.s[pk.s].t,'','s'],
+      cheat ? ['Cheat meal',CHEAT[pk.c],'cheat','c','Plus one dessert if you want it: a scoop of kulfi or ice cream, or 1–2 pieces of mithai.'] : ['Dinner',POOL.d[pk.d].t,'','d']];
+    if(hungry && !cheat) meals.splice(3,0,['Extra','Add 1 roti or ½ cup rice at lunch, and a boiled egg or a bowl of dahi as a second snack.','add']);
+  } else {
+    meals = [['Breakfast',d.b],['Lunch',d.l],
+      cheat ? ['Snack','Fruit only, or skip it and save room for tonight'] : ['Snack',d.s],
+      cheat ? ['Cheat meal',CHEAT[0],'cheat','','Plus one dessert if you want it: a scoop of kulfi or ice cream, or 1–2 pieces of mithai.'] : ['Dinner',d.d]];
+  }
+  if(sp) meals.splice(2,0,
+    ['Pre-game','1 banana or 3 dates + 1 slice toast, 60–90 min before you play','add'],
+    ['During','Water at every break. For 90+ min in heat: lemon water with a pinch of salt','add'],
+    ['After','Eat your next meal within 1–2 h, or have dahi or lassi + fruit if it\'s later','add']);
+  let kcal, why;
+  if(cheat){ kcal = sp?'2,700–2,900':'2,500–2,700'; why = 'About maintenance. No deficit today, but no big surplus either.'; }
+  else if(sp){ kcal = hungry?'2,500–2,600':'2,300–2,400'; why = 'Extra fuel for the game.'; }
+  else { kcal = hungry?'2,200–2,300':'2,000–2,100'; why = hungry?'A smaller deficit on a hungry day.':'A gentle deficit for fat loss.'; }
+
+  const isToday = sel===todayIdx;
+  const checkin = plan
+    ? `<div class="checkin"><p><b>${isToday?"Today's":DAYS[sel]+"'s"} meals are planned</b> from your answers: ${Q.map(q=>q.opts.find(o=>o[0]===plan.a[q.k])[1].toLowerCase()).join(' · ')}. Tap <b>Swap</b> on any meal you don't fancy.</p>
+        <button class="btn ghost" id="redo" type="button">Change my answers</button></div>`
+    : `<div class="checkin"><p><b>${isToday?'How is today looking?':'Plan '+DAYS[sel]+"'s food"}</b> Answer three quick questions and I'll suggest ${isToday?"today's":'the'} meals. Until then, the suggested menu below applies.</p>
+        ${Q.map(q=>`<div class="q"><span>${q.label}</span><div class="chips">${q.opts.map(o=>`<button class="chip" type="button" data-k="${q.k}" data-v="${o[0]}" aria-pressed="${draft[q.k]===o[0]}">${o[1]}</button>`).join('')}</div></div>`).join('')}
+        <button class="btn" id="plan" type="button">Suggest my meals</button></div>`;
+
+  document.getElementById('diet').innerHTML = `
+    <div><h3>${DAYS[sel]} · Food</h3>${cheat?'<span class="pill cheat">Cheat day</span>':''}</div>
+    <div class="kcal"><strong>${kcal}</strong><span>kcal, approx. ${why}</span></div>
+    ${checkin}
+    ${plan?'':'<h3>Suggested menu</h3>'}
+    <ul class="meals">${meals.map(m=>`<li class="${m[2]||''}"><span class="when">${m[0]}</span><div><span>${m[1]}</span>${m[4]?`<span class="sub">${m[4]}</span>`:''}${plan&&m[3]?`<button class="swap" type="button" data-slot="${m[3]}">Swap</button>`:''}</div></li>`).join('')}</ul>
+    <div class="section"><h3>Hungry at night?</h3>
+      <div class="checkin night">
+        <p class="sub">First drink a glass of water and wait 10 minutes. Still hungry? Have this:</p>
+        <p class="nsnack"><b>${NIGHT[nightIdx][0]}</b> <span class="sub">· about ${NIGHT[nightIdx][1]} kcal</span></p>
+        <button class="btn ghost" id="nightSwap" type="button">Another option</button>
+      </div>
+      <ul class="rules">
+        <li>Keep night snacks to 100–150 kcal, one per night.</li>
+        <li>Skip biscuits, chips, mithai, cold drinks and leftover paratha. They're easy to overeat late.</li>
+        <li>Hungry most nights? Put more protein and sabzi in dinner, or eat dinner a bit later.</li>
+        <li>Brush your teeth after your last snack. It's a simple signal that eating is done for the day.</li>
+        <li>Staying up past midnight is the biggest trigger. Sleeping earlier cuts most night hunger.</li>
+      </ul></div>
+    ${cheat?`<div class="section"><h3>Cheat day rules</h3><ul class="rules">
+      <li>One big meal, not a full day of grazing. Breakfast and lunch stay normal.</li>
+      <li>Enjoy it with no guilt, then go back to the plan at your next meal.</li>
+      <li>Have water, salted lassi or a diet drink with it, not a regular cold drink.</li>
+      <li>Still skip nihari, paye, kaleji and other organ meats.</li>
+      <li>Expect the scale to jump the next morning. That's water and salt, not fat, and it's gone in 2–3 days.</li>
+    </ul></div>`:''}
+    <div class="section"><h3>Every day</h3><ul class="rules">
+      <li>Water: about 3 L, 3.5–4 L on sport days.</li>
+      <li>Some protein at every meal: eggs, dahi, chicken, fish, daal.</li>
+      <li>Red meat (beef, mutton) once a week at most. Skip kaleji, kapooray, magaz and prawns.</li>
+      <li>Skip cold drinks, packaged juices and most mithai. Sugary drinks raise uric acid as well as calories.</li>
+      <li>1 tbsp oil per dish, 1 roti per meal. Cut rice portions before cutting protein.</li>
+      <li>7–8 hours of sleep.</li>
+    </ul></div>`;
+}
+function bindDiet(){
+  const key = dateKey(sel);
+  document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{ draft[c.dataset.k]=c.dataset.v; renderDiet(); bindDiet(); });
+  const pb = document.getElementById('plan');
+  if(pb) pb.onclick = ()=>{ food[key] = makePlan(draft); saveFood(); renderDiet(); bindDiet(); };
+  document.getElementById('nightSwap').onclick = ()=>{ nightIdx = (nightIdx+1)%NIGHT.length; renderDiet(); bindDiet(); };
+  const rd = document.getElementById('redo');
+  if(rd) rd.onclick = ()=>{ draft = {...food[key].a}; delete food[key]; saveFood(); renderDiet(); bindDiet(); };
+  document.querySelectorAll('.swap').forEach(b=>b.onclick=()=>{
+    const p = food[key], s = b.dataset.slot;
+    if(s==='c'){ p.pick.c = randFrom(CHEAT.map((x,i)=>i), p.pick.c); }
+    else { p.pick[s] = randFrom(candidates(s,p.a), p.pick[s]); }
+    saveFood(); renderDiet(); bindDiet();
+  });
+}
+/* ---------- Video popup ---------- */
+// YouTube plays inside the popup on a normal website. Claude-hosted pages and local files can't embed it, so they get a fallback.
+const canEmbed = /^https?:$/.test(location.protocol) && !/claude|anthropic/i.test(location.hostname);
+const vm = document.getElementById('vm'), vmb = document.getElementById('vmb');
+let lastFocus = null, modalAnim = null;
+function openVideo(id){
+  const e = EX[id], v = VID[id], yt = `https://www.youtube.com/watch?v=${v}`;
+  document.getElementById('vmt').textContent = e.name;
+  if(canEmbed){
+    vmb.innerHTML = `<div class="vwrap"><iframe src="https://www.youtube-nocookie.com/embed/${v}?autoplay=1&rel=0&modestbranding=1" title="${e.name} video" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
+      <div class="mrow"><a class="vid" href="${yt}" target="_blank" rel="noopener">Open on YouTube ↗</a></div>`;
+  } else {
+    const media = PHOTO[id]
+      ? `<div class="photo"><img src="img/${id}-0.jpg" alt=""><img src="img/${id}-1.jpg" alt=""><span class="tag t0">Start</span><span class="tag t1">Finish</span></div>`
+      : `<canvas data-ex="${id}" role="img" aria-label="Animated demo of ${e.name}"></canvas>`;
+    vmb.innerHTML = `${media}
+      <ul class="cues">${(e.cues||[]).map(c=>`<li>${c}</li>`).join('')}</ul>
+      <div class="mrow"><a class="btn" href="${yt}" target="_blank" rel="noopener">▶ Play the video on YouTube</a>
+      <span class="sub">Videos can't play inside a Claude page. Host this page on your own site and they'll play right here.</span></div>`;
+  }
+  vm.hidden = false; document.body.classList.add('locked');
+  lastFocus = document.activeElement; document.getElementById('vmx').focus();
+  const cv = vmb.querySelector('canvas');
+  if(cv){ sizeCanvas(cv); modalAnim = {cv, ctx:cv.getContext('2d'), e, t0:performance.now()}; active.push(modalAnim); if(reduce.matches) frame(performance.now(), true); }
+}
+function closeVideo(){
+  vm.hidden = true; vmb.innerHTML = ''; document.body.classList.remove('locked');
+  if(modalAnim){ active = active.filter(a=>a!==modalAnim); modalAnim = null; }
+  if(lastFocus) lastFocus.focus();
+}
+document.addEventListener('click', ev=>{
+  const a = ev.target.closest('a.vid[data-id]');
+  if(a && !vm.contains(a)){ ev.preventDefault(); openVideo(a.dataset.id); }
+});
+document.getElementById('vmx').onclick = closeVideo;
+vm.addEventListener('click', ev=>{ if(ev.target===vm) closeVideo(); });
+document.addEventListener('keydown', ev=>{ if(ev.key==='Escape' && !vm.hidden) closeVideo(); });
+
+/* ---------- Phone: bottom tabs ---------- */
+const tabW = document.getElementById('tabW'), tabF = document.getElementById('tabF');
+const goTo = id => document.getElementById(id).scrollIntoView({behavior: reduce.matches ? 'auto' : 'smooth', block:'start'});
+tabW.onclick = ()=>goTo('workout');
+tabF.onclick = ()=>goTo('diet');
+window.addEventListener('scroll', ()=>{
+  const f = document.getElementById('diet').getBoundingClientRect().top < window.innerHeight*0.5;
+  tabF.setAttribute('aria-current', f); tabW.setAttribute('aria-current', !f);
+}, {passive:true});
+
+/* ---------- Install as an app (works when hosted on your own site) ---------- */
+const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const hosted = /^https:$/.test(location.protocol) && !/claude|anthropic/i.test(location.hostname);
+const ua = navigator.userAgent;
+const isIOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);
+const isAndroid = /Android/.test(ua);
+const installBox = document.getElementById('install'), installBtn = document.getElementById('installBtn'), installText = document.getElementById('installText');
+let deferredPrompt = null;
+function showInstall(){ if(hosted && !standalone && !store.get('htp-install-dismissed', false) && (isIOS || isAndroid)) installBox.classList.add('show'); }
+if(isIOS) installText.innerHTML = 'Install on iPhone: tap <b>Share</b> <span aria-hidden="true">⎙</span> in Safari, then <b>Add to Home Screen</b>.';
+else if(isAndroid) installText.innerHTML = 'Install on Android: tap <b>Install</b>, or open Chrome\'s <b>⋮</b> menu and choose <b>Add to Home screen</b>.';
+window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferredPrompt = e; installBtn.hidden = false; showInstall(); });
+installBtn.onclick = async ()=>{ if(!deferredPrompt) return; deferredPrompt.prompt(); try{ await deferredPrompt.userChoice; }catch(e){} deferredPrompt = null; installBox.classList.remove('show'); };
+document.getElementById('installX').onclick = ()=>{ store.set('htp-install-dismissed', true); installBox.classList.remove('show'); };
+window.addEventListener('appinstalled', ()=>installBox.classList.remove('show'));
+showInstall();
+if(hosted && 'serviceWorker' in navigator){ window.addEventListener('load', ()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); }); }
+
+function render(){ renderDays(); renderWorkout(); renderDiet(); bindDiet(); setupCanvases(); }
+document.getElementById('cheatSel').onchange = e => { cheatDay = +e.target.value; store.set('htp-cheat', cheatDay); render(); };
+document.getElementById('wkA').onclick = ()=>{ week='A'; store.set('htp-week',week); render(); };
+document.getElementById('wkB').onclick = ()=>{ week='B'; store.set('htp-week',week); render(); };
+
+/* ---------- Animation engine ---------- */
+function pair(v){ return typeof v[0]==='number' ? [v.slice(), v.slice()] : v.map(x=>x.slice()); }
+function norm(p){
+  const dx=p.sh[0]-p.hip[0], dy=p.sh[1]-p.hip[1], l=Math.hypot(dx,dy)||1;
+  return {hip:p.hip.slice(), sh:p.sh.slice(), h:pair(p.h), f:pair(p.f), hd:p.hd?p.hd.slice():[13*dx/l,13*dy/l], arch:p.arch||0};
+}
+Object.values(EX).forEach(e=>{ e.n = e.frames.map(norm); });
+const lerp=(a,b,t)=>a+(b-a)*t;
+const lp=(a,b,t)=>[lerp(a[0],b[0],t),lerp(a[1],b[1],t)];
+function mix(a,b,t){ return {hip:lp(a.hip,b.hip,t), sh:lp(a.sh,b.sh,t), hd:lp(a.hd,b.hd,t), arch:lerp(a.arch,b.arch,t),
+  h:[lp(a.h[0],b.h[0],t),lp(a.h[1],b.h[1],t)], f:[lp(a.f[0],b.f[0],t),lp(a.f[1],b.f[1],t)]}; }
+function ik(a,t,l1,l2,s){
+  const dx=t[0]-a[0], dy=t[1]-a[1], d=Math.hypot(dx,dy);
+  const dc=Math.min(Math.max(d,Math.abs(l1-l2)+.01),l1+l2-.01);
+  const ang=Math.atan2(dy,dx), off=Math.acos(Math.max(-1,Math.min(1,(l1*l1+dc*dc-l2*l2)/(2*l1*dc))));
+  const j=[a[0]+l1*Math.cos(ang+s*off), a[1]+l1*Math.sin(ang+s*off)];
+  const vx=t[0]-j[0], vy=t[1]-j[1], vl=Math.hypot(vx,vy)||1;
+  return [j,[j[0]+l2*vx/vl, j[1]+l2*vy/vl]];
+}
+function poseAt(e, ms){
+  const n=e.n.length, durs=Array.isArray(e.dur)?e.dur:Array(n).fill(e.dur);
+  const total=durs.reduce((a,b)=>a+b,0); let t=ms%total, i=0;
+  while(t>durs[i]){ t-=durs[i]; i++; }
+  const p=t/durs[i], ease=.5-.5*Math.cos(Math.PI*p);
+  return mix(e.n[i], e.n[(i+1)%n], ease);
+}
+function line(ctx,pts){ ctx.beginPath(); ctx.moveTo(pts[0][0],pts[0][1]); for(let k=1;k<pts.length;k++) ctx.lineTo(pts[k][0],pts[k][1]); ctx.stroke(); }
+function drawFig(ctx, e, p, c){
+  ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.strokeStyle=c.line; ctx.lineWidth=2; line(ctx,[[8,140],[212,140]]);
+  (e.props||[]).forEach(pr=>{
+    ctx.strokeStyle=c.line; ctx.lineWidth=3.5;
+    if(pr.t==='chair'){ const y=108; line(ctx,[[pr.x,y],[pr.x+pr.w,y]]); line(ctx,[[pr.x+3,y],[pr.x+3,140]]); line(ctx,[[pr.x+pr.w-3,y],[pr.x+pr.w-3,140]]);
+      const bx = pr.back==='left'?pr.x+3:pr.x+pr.w-3; line(ctx,[[bx,y],[bx,y-36]]); }
+    if(pr.t==='table'){ ctx.lineWidth=5; line(ctx,[[pr.x1,pr.y],[pr.x2,pr.y]]); ctx.lineWidth=3; ctx.globalAlpha=.6; line(ctx,[[pr.x1+4,pr.y],[pr.x1+4,140]]); line(ctx,[[pr.x2-4,pr.y],[pr.x2-4,140]]); ctx.globalAlpha=1; }
+  });
+  const knee=e.knee||-1, elbow=e.elbow||1;
+  const leg=(i,col)=>{ const [k,f]=ik(p.hip,p.f[i],30,30,knee); ctx.strokeStyle=col; ctx.lineWidth=5; line(ctx,[p.hip,k,f]); };
+  const arm=(i,col)=>{ const [el,h]=ik(p.sh,p.h[i],24,24,elbow); ctx.strokeStyle=col; ctx.lineWidth=4.5; line(ctx,[p.sh,el,h]); return h; };
+  const back = e.front ? c.fig : c.back;
+  arm(1,back); leg(1,back);
+  // torso (optionally arched)
+  ctx.strokeStyle=c.fig; ctx.lineWidth=6;
+  const vx=p.sh[0]-p.hip[0], vy=p.sh[1]-p.hip[1], vl=Math.hypot(vx,vy)||1;
+  const cx=(p.hip[0]+p.sh[0])/2 + p.arch*vy/vl*2, cy=(p.hip[1]+p.sh[1])/2 - p.arch*vx/vl*2;
+  ctx.beginPath(); ctx.moveTo(p.hip[0],p.hip[1]); ctx.quadraticCurveTo(cx,cy,p.sh[0],p.sh[1]); ctx.stroke();
+  leg(0,c.fig);
+  ctx.fillStyle=c.fig; ctx.beginPath(); ctx.arc(p.sh[0]+p.hd[0], p.sh[1]+p.hd[1], 8.5, 0, Math.PI*2); ctx.fill();
+  const hand = arm(0,c.fig);
+  if((e.props||[]).some(pr=>pr.t==='bag')){ ctx.fillStyle=c.accent; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(hand[0]-8,hand[1]-2,16,18,4) : ctx.rect(hand[0]-8,hand[1]-2,16,18); ctx.fill(); }
+}
+let active=[];
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+function sizeCanvas(cv){
+  const r=window.devicePixelRatio||1, w=cv.clientWidth||220;
+  cv.width=Math.round(w*r); cv.height=Math.round(w*170/220*r);
+}
+function setupCanvases(){
+  const t0=performance.now();
+  active=[...document.querySelectorAll('canvas[data-ex]')].map((cv,i)=>{ sizeCanvas(cv); return {cv, ctx:cv.getContext('2d'), e:EX[cv.dataset.ex], t0:t0-i*170}; });
+  if(reduce.matches) frame(performance.now(), true);
+}
+function colors(){
+  const s=getComputedStyle(document.documentElement);
+  return {fig:s.getPropertyValue('--fig').trim(), back:s.getPropertyValue('--fig-back').trim(), line:s.getPropertyValue('--line').trim(), accent:s.getPropertyValue('--accent').trim()};
+}
+function frame(now, once){
+  const c=colors();
+  active.forEach(a=>{
+    const {cv,ctx,e}=a; ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,cv.width,cv.height);
+    const k=cv.width/220; ctx.setTransform(k,0,0,k,0,20*k);
+    const p = reduce.matches ? e.n[e.still ?? 1] : poseAt(e, now-a.t0);
+    drawFig(ctx,e,p,c);
+  });
+  if(!once && !reduce.matches) requestAnimationFrame(t=>frame(t));
+}
+window.addEventListener('resize', ()=>{ active.forEach(a=>sizeCanvas(a.cv)); if(reduce.matches) frame(performance.now(), true); });
+render();
+if(!reduce.matches) requestAnimationFrame(t=>frame(t));
+</script>
+</body>
+</html>
