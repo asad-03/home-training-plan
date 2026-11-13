@@ -457,6 +457,11 @@ const EX = {
     {hip:[112,98], sh:[148,122], h:[178,140], f:[66,140]}],
     cues:['Hips high, body in an upside-down V','Lower the top of your head in front of your hands'],
     easy:'smaller hip bend, shorter range', hard:'feet up on a chair'},
+  decline:{name:'Decline push-ups', dur:1100, frames:[
+    {hip:[100,104], sh:[144,104], h:[146,140], f:[40,100]},
+    {hip:[100,116], sh:[144,126], h:[146,140], f:[40,100]}],
+    cues:['Feet on a chair or the edge of the bed, hands on the floor a bit wider than shoulders','Body in one straight line; lower until your nose nearly touches the floor, then press up'],
+    easy:'regular push-ups on the floor', hard:'feet higher, or lower slowly for 3 seconds'},
   bridge:{name:'Single-leg glute bridge', dur:1200, frames:[
     {hip:[102,134], sh:[58,134], hd:[-13,0], h:[106,140], f:[[140,140],[150,100]]},
     {hip:[100,108], sh:[60,130], hd:[-13,1], h:[106,140], f:[[140,140],[152,80]]}],
@@ -552,7 +557,7 @@ const EX = {
 /* ---------- Plans ---------- */
 const WORK = {
   A:{title:'Strength Day A: Push + Legs', list:[
-    ['pushup','4 × 8–15','upper'],['bss','3 × 8–12 / leg','legs'],['pike','3 × 6–10','upper'],
+    ['pushup','4 × 8–15','upper'],['bss','3 × 8–12 / leg','legs'],['decline','3 × 6–12','upper'],
     ['bridge','3 × 10–15 / leg','legs'],['dips','3 × 8–12','upper'],['plank','3 × 30–60 s','core']]},
   B:{title:'Strength Day B: Pull + Legs', list:[
     ['invrow','4 × 8–12','upper'],['squat','4 × 12–20','legs'],['bprow','3 × 10–15 / arm','upper'],
@@ -793,6 +798,7 @@ const typeOf = i => { const rot = week==='A' ? 'ABA' : 'BAB'; return i===0?rot[0
 const PHOTO = {
   jacks:{note:'Photo shows star jumps. Regular jumping jacks work just as well.', q:'jumping jacks proper form'},
   pushup:{q:'push up proper form'},
+  decline:{q:'decline push up proper form'},
   bss:{note:'Photo shows a regular split squat. For the Bulgarian version, rest your back foot on a chair.', q:'bulgarian split squat bodyweight form'},
   bridge:{q:'single leg glute bridge form'},
   dips:{note:'Use a sturdy chair instead of a bench.', q:'chair dips proper form'},
@@ -815,7 +821,7 @@ const VID = {
   jacks:'nGaXj3kkmrU', pushup:'WDIpL0pjun0', bss:'zFbhMqkvg6o', pike:'paCOGgmLCA0', bridge:'3NXv0Nany-Q',
   dips:'AWz_7B1cch0', plank:'A2b2EmIg0dA', invrow:'6NTruShwwKk', squat:'ZLJBfYF_oO0', bprow:'puaKVJOY8eg',
   lunge:'-HjB2x75haE', yraise:'DQFTp5n0uh0', deadbug:'bxn9FBrt4-A', burpee:'wGvBfVeCNko', climber:'gW-q50V6Z_0',
-  sqjump:'tZSYZdtbONc', catcow:'Fa4ZMS5M7xA', hipflex:'qWMXPKLFF2A', walk:'2VVjeqedgQY', armcirc:'3STTSi_jdHk', hinge:'cGXag6VbeRM',
+  sqjump:'tZSYZdtbONc', catcow:'Fa4ZMS5M7xA', hipflex:'qWMXPKLFF2A', walk:'2VVjeqedgQY', armcirc:'3STTSi_jdHk', decline:'SKPab2YC8BE', hinge:'cGXag6VbeRM',
 };
 const VQ = {pike:'pike push up proper form', burpee:'burpee proper form beginner', walk:'brisk walking technique'};
 function parseSets(sets){
@@ -1363,9 +1369,9 @@ const canEmbed = /^https?:$/.test(location.protocol) && !/claude|anthropic/i.tes
 const vm = document.getElementById('vm'), vmb = document.getElementById('vmb');
 let lastFocus = null, modalAnim = null;
 function openVideo(id){
-  const e = EX[id], v = VID[id], yt = `https://www.youtube.com/watch?v=${v}`;
+  const e = EX[id], v = VID[id], yt = v ? `https://www.youtube.com/watch?v=${v}` : `https://www.youtube.com/results?search_query=${encodeURIComponent((PHOTO[id]&&PHOTO[id].q) || VQ[id] || e.name)}`;
   document.getElementById('vmt').textContent = e.name;
-  if(canEmbed){
+  if(canEmbed && v){
     vmb.innerHTML = `<div class="vwrap"><iframe src="https://www.youtube-nocookie.com/embed/${v}?autoplay=1&rel=0&modestbranding=1" title="${e.name} video" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>
       <div class="mrow"><a class="vid" href="${yt}" target="_blank" rel="noopener">Open on YouTube ↗</a></div>`;
   } else {
@@ -1374,8 +1380,8 @@ function openVideo(id){
       : `<canvas data-ex="${id}" role="img" aria-label="Animated demo of ${e.name}"></canvas>`;
     vmb.innerHTML = `${media}
       <ul class="cues">${(e.cues||[]).map(c=>`<li>${c}</li>`).join('')}</ul>
-      <div class="mrow"><a class="btn" href="${yt}" target="_blank" rel="noopener">▶ Play the video on YouTube</a>
-      <span class="sub">Videos can't play inside a Claude page. Host this page on your own site and they'll play right here.</span></div>`;
+      <div class="mrow"><a class="btn" href="${yt}" target="_blank" rel="noopener">${v ? '▶ Play the video on YouTube' : '▶ Find videos on YouTube'}</a>
+      ${v ? `<span class="sub">Videos can't play inside a Claude page. Host this page on your own site and they'll play right here.</span>` : ''}</div>`;
   }
   vm.hidden = false; document.body.classList.add('locked');
   lastFocus = document.activeElement; document.getElementById('vmx').focus();
