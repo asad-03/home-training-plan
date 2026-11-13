@@ -539,6 +539,14 @@ const EX = {
     {hip:[96,114], sh:[98,70], h:[102,114], f:[[140,140],[54,140]]},
     {hip:[104,116], sh:[106,72], h:[110,116], f:[[140,140],[54,140]]}],
     cues:['Back knee on a cushion, squeeze that glute','Shift hips forward gently; no arching']},
+  armcirc:{name:'Arm circles', front:true, dur:700, frames:[
+    {hip:[110,82], sh:[110,36], hd:[0,-13], h:[[68,28],[152,28]], f:[[100,140],[120,140]]},
+    {hip:[110,82], sh:[110,36], hd:[0,-13], h:[[70,46],[150,46]], f:[[100,140],[120,140]]}],
+    cues:['Arms straight out to the sides, shoulders down','Start small, make the circles bigger, then switch direction']},
+  hinge:{name:'Hip hinge', dur:1500, frames:[
+    {hip:[108,84], sh:[110,38], h:[106,84], f:[[104,140],[112,140]]},
+    {hip:[94,86], sh:[136,62], h:[100,86], f:[[104,140],[112,140]]}],
+    cues:['Hands on hips, soft knees, back flat','Push your hips back until you feel the hamstrings, then stand tall']},
 };
 
 /* ---------- Plans ---------- */
@@ -798,6 +806,8 @@ const PHOTO = {
   climber:{q:'mountain climbers proper form'},
   sqjump:{q:'squat jump proper form'},
   catcow:{q:'cat cow stretch'},
+  armcirc:{q:'arm circles warm up'},
+  hinge:{note:'Photo uses a band. At home, just put your hands on your hips.', q:'bodyweight hip hinge'},
   hipflex:{q:'kneeling hip flexor stretch'},
 };
 /* One chosen YouTube form video per exercise */
@@ -805,7 +815,7 @@ const VID = {
   jacks:'nGaXj3kkmrU', pushup:'WDIpL0pjun0', bss:'zFbhMqkvg6o', pike:'paCOGgmLCA0', bridge:'3NXv0Nany-Q',
   dips:'AWz_7B1cch0', plank:'A2b2EmIg0dA', invrow:'6NTruShwwKk', squat:'ZLJBfYF_oO0', bprow:'puaKVJOY8eg',
   lunge:'-HjB2x75haE', yraise:'DQFTp5n0uh0', deadbug:'bxn9FBrt4-A', burpee:'wGvBfVeCNko', climber:'gW-q50V6Z_0',
-  sqjump:'tZSYZdtbONc', catcow:'Fa4ZMS5M7xA', hipflex:'qWMXPKLFF2A', walk:'2VVjeqedgQY',
+  sqjump:'tZSYZdtbONc', catcow:'Fa4ZMS5M7xA', hipflex:'qWMXPKLFF2A', walk:'2VVjeqedgQY', armcirc:'3STTSi_jdHk', hinge:'cGXag6VbeRM',
 };
 const VQ = {pike:'pike push up proper form', burpee:'burpee proper form beginner', walk:'brisk walking technique'};
 function parseSets(sets){
@@ -961,7 +971,7 @@ function renderWorkout(){
     h += fl
       ? `<div class="section"><div class="section-head"><h3>Warm-up · 5 min</h3></div><ul class="rules"><li>Arm circles, 10 each way</li><li>Shoulder rolls, 10</li><li>5 slow cat-cows, if your knees are OK</li></ul></div>`
       : acc('w-warm', '<h3>Warm-up · 5 min</h3>', 'Jumping jacks, arm circles, squats, hip hinges, cat-cow',
-        `<div class="grid">${card('jacks','1 min')}</div><ul class="rules"><li>Arm circles, 10 each way</li><li>10 slow bodyweight squats</li><li>10 hip hinges (hands on hips, push hips back)</li><li>5 cat-cows</li></ul>`, false);
+        `<div class="grid">${card('jacks','1 min')}${card('armcirc','10 each way')}${card('squat','10 slow reps')}${card('hinge','10 reps')}${card('catcow','5 slow reps')}</div>`, false);
     h += `<div class="section"><div class="section-head"><h3>${short?'Main work · upper + core':'Main work'}</h3><p>Log your reps. A rest timer starts after each set.</p></div>
       <div class="grid">${list.map(([id,s])=>card(id, short ? s.replace(/^\d/,'2') : s, {log:true})).join('')}</div></div>`;
     if(!short && !ramadan) h += acc('w-fin', '<h3>Finisher · 8–10 min</h3>', '3–4 rounds: 10 burpees, 20 mountain climbers, 10 squat jumps',
