@@ -285,15 +285,17 @@ details.acc > .accb{padding:0 14px 14px; display:grid; gap:10px}
 details.hcard{padding:0}
 details.hcard > summary h4{font-size:1.2rem; flex:none}
 /* exercise rows */
-.ex{display:grid; grid-template-columns:112px minmax(0,1fr); border-radius:14px}
-.ex .thumb{all:unset; cursor:zoom-in; position:relative; display:block; background:var(--bg); border-right:1px solid var(--line); min-height:112px}
+.ex{display:grid; grid-template-columns:150px minmax(0,1fr); align-items:start; border-radius:14px}
+.ex .thumb{all:unset; cursor:zoom-in; position:relative; display:block; box-sizing:border-box; width:calc(100% - 10px); margin:10px 0 10px 10px; aspect-ratio:4/3; border-radius:10px; overflow:hidden; background:#111}
 .ex .thumb:focus-visible{outline:3px solid var(--accent); outline-offset:-3px}
 .ex .thumb .photo, .ex .thumb canvas{position:absolute; inset:0; width:100%; height:100%; aspect-ratio:auto; border:0}
 .ex .thumb .tag{display:none}
-.ex .thumb canvas{inset:auto; left:0; right:0; top:50%; transform:translateY(-50%); height:auto; aspect-ratio:220/170}
+.ex .thumb canvas{background:var(--bg)}
+@media (prefers-reduced-motion: reduce){ .ex .thumb .photo img{width:100%} .ex .thumb .photo img:nth-child(2){display:none} }
 .ex .thumb .play{position:absolute; right:6px; bottom:6px; width:26px; height:26px; border-radius:50%; background:rgba(0,0,0,.6); display:grid; place-items:center}
 .ex-body{padding:10px 12px; gap:6px}
 .ex-top h4{font-size:1.15rem; line-height:1.15}
+.ex-top{flex-direction:column; align-items:flex-start; gap:2px}
 .ex details.more > summary{font:700 .85rem var(--body); color:var(--accent); cursor:pointer; list-style:none}
 .ex details.more > summary::-webkit-details-marker{display:none}
 .ex details.more > summary::before{content:"+ "}
@@ -324,8 +326,10 @@ details.acc > .accb{grid-template-columns:minmax(0,1fr)}
   .brand h1{font-size:1.35rem}
   .topactions .syncbtn span{display:none}
   .topactions .syncbtn{padding:0 11px}
-  .ex{grid-template-columns:96px minmax(0,1fr)}
-  .ex .thumb{min-height:96px}
+  .ex{grid-template-columns:122px minmax(0,1fr)}
+  .ex-top .sets{font-size:.95rem}
+  .setbox input{width:48px; height:38px}
+  .ex-body{padding:10px 10px 10px 12px}
   .grid{grid-template-columns:1fr}
   .panel{padding:14px; gap:12px}
   .days .day{padding:6px 6px; gap:0}
