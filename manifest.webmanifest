@@ -9,8 +9,75 @@
   "background_color": "#EEF1EC",
   "theme_color": "#1E7A5F",
   "icons": [
-    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png"},
-    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"},
-    {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Today's workout",
+      "short_name": "Workout",
+      "description": "Open today's workout",
+      "url": "./index.html?go=workout",
+      "icons": [
+        {
+          "src": "sc-workout.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Log water",
+      "short_name": "Water",
+      "description": "Tap glasses to log today's water",
+      "url": "./index.html?go=water",
+      "icons": [
+        {
+          "src": "sc-water.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Night medicines",
+      "short_name": "Medicines",
+      "description": "Tick off tonight's medicines",
+      "url": "./index.html?go=meds",
+      "icons": [
+        {
+          "src": "sc-meds.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Progress & health",
+      "short_name": "Health",
+      "description": "Weight, waist and blood tests",
+      "url": "./index.html?go=health",
+      "icons": [
+        {
+          "src": "sc-health.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        }
+      ]
+    }
   ]
 }
