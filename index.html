@@ -51,7 +51,7 @@ body{background:var(--bg); color:var(--ink); font-family:var(--body); font-size:
   .tabbar{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; position:fixed; left:0; right:0; bottom:0; z-index:40;
     padding:8px calc(12px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
     background:var(--surface); border-top:1px solid var(--line); box-shadow:0 -4px 16px rgba(0,0,0,.08)}
-  .tabbar button{font:700 1rem var(--body); padding:12px; border-radius:12px; border:1px solid var(--line); background:var(--bg); color:var(--ink); cursor:pointer}
+  .tabbar button{display:flex; flex-direction:column; align-items:center; gap:2px; font:700 .85rem var(--body); padding:6px; border-radius:12px; border:1px solid var(--line); background:var(--bg); color:var(--ink); cursor:pointer}
   .tabbar button[aria-current="true"]{background:var(--accent); border-color:var(--accent); color:var(--bg)}
   .wrap{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
   .timerbar{bottom:calc(84px + env(safe-area-inset-bottom))}
@@ -192,6 +192,8 @@ body.locked{overflow:hidden}
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .alert b{color:#FF8A7A} }
 .paincheck{display:grid; gap:8px; background:var(--bg); border:1px solid var(--line); border-radius:12px; padding:12px 14px}
 .paincheck p{font-weight:700; font-size:.95rem}
+.paincheck.done{display:flex; align-items:center; justify-content:space-between; gap:10px}
+.paincheck.done p{font-weight:600}
 .log{display:grid; gap:8px; border-top:1px dashed var(--line); padding-top:8px}
 .log .lh{font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted)}
 .setrow{display:flex; flex-wrap:wrap; gap:6px}
@@ -247,12 +249,70 @@ body.locked{overflow:hidden}
 .flash{animation:flash 1.6s ease-out}
 @keyframes flash{0%{box-shadow:0 0 0 0 var(--accent)} 30%{box-shadow:0 0 0 6px color-mix(in srgb, var(--accent) 45%, transparent)} 100%{box-shadow:0 0 0 0 transparent}}
 @media (prefers-reduced-motion: reduce){ .flash{animation:none} }
+/* ----- compact layout: views, glance strip, accordions ----- */
+.topbar{display:flex; align-items:center; justify-content:space-between; gap:12px}
+.brand{display:flex; align-items:center; gap:10px; min-width:0}
+.brand img{border-radius:9px; flex:none}
+.brand h1{font-size:1.7rem; line-height:1}
+.brand .sub{font-size:.85rem}
+.topactions{display:flex; gap:8px; flex:none}
+.settingsPanel{gap:14px}
+.settingsPanel[hidden]{display:none}
+.wrap > *, .main > *{min-width:0}
+.glance{display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; padding-bottom:2px}
+.glance::-webkit-scrollbar{display:none}
+.gchip{flex:none; display:flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:7px 12px; font:600 .9rem var(--body); color:var(--ink); cursor:pointer; white-space:nowrap}
+.gchip b{font-family:var(--display); font-size:1.15rem; font-variant-numeric:tabular-nums}
+.gchip .bar{width:44px; height:6px; border-radius:3px; background:var(--line); overflow:hidden}
+.gchip .bar i{display:block; height:100%; background:var(--accent)}
+.gchip.done{border-color:var(--accent)}
+.gchip.warn{border-color:var(--cheat)}
+.gchip .k{color:var(--muted); font-weight:600; font-size:.8rem; text-transform:uppercase; letter-spacing:.04em}
+.viewtabs{display:flex; gap:6px; border-bottom:1px solid var(--line)}
+.viewtabs button{font:700 1rem var(--body); background:none; border:0; border-bottom:3px solid transparent; padding:8px 14px; color:var(--muted); cursor:pointer}
+.viewtabs button[aria-current="true"]{color:var(--ink); border-bottom-color:var(--accent)}
+body[data-view="health"] .main{display:none}
+body:not([data-view="health"]) #health{display:none}
+details.acc{border:1px solid var(--line); border-radius:12px; background:var(--surface)}
+details.acc > summary{list-style:none; cursor:pointer; display:flex; align-items:center; gap:10px; padding:10px 14px; min-height:44px}
+details.acc > summary::-webkit-details-marker{display:none}
+details.acc > summary::after{content:""; margin-left:auto; flex:none; width:9px; height:9px; border-right:2px solid var(--muted); border-bottom:2px solid var(--muted); transform:rotate(45deg); transition:transform .2s}
+details.acc[open] > summary::after{transform:rotate(-135deg)}
+details.acc > summary h3, details.acc > summary h4{margin:0; white-space:nowrap; flex:none}
+details.acc > summary .ss{flex:1 1 auto}
+details.acc > summary .ss{color:var(--muted); font-size:.85rem; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0}
+details.acc > .accb{padding:0 14px 14px; display:grid; gap:10px}
+details.hcard{padding:0}
+details.hcard > summary h4{font-size:1.2rem; flex:none}
+/* exercise rows */
+.ex{display:grid; grid-template-columns:112px minmax(0,1fr); border-radius:14px}
+.ex .thumb{all:unset; cursor:zoom-in; position:relative; display:block; background:var(--bg); border-right:1px solid var(--line); min-height:112px}
+.ex .thumb:focus-visible{outline:3px solid var(--accent); outline-offset:-3px}
+.ex .thumb .photo, .ex .thumb canvas{position:absolute; inset:0; width:100%; height:100%; aspect-ratio:auto; border:0}
+.ex .thumb .tag{display:none}
+.ex .thumb canvas{inset:auto; left:0; right:0; top:50%; transform:translateY(-50%); height:auto; aspect-ratio:220/170}
+.ex .thumb .play{position:absolute; right:6px; bottom:6px; width:26px; height:26px; border-radius:50%; background:rgba(0,0,0,.6); display:grid; place-items:center}
+.ex-body{padding:10px 12px; gap:6px}
+.ex-top h4{font-size:1.15rem; line-height:1.15}
+.ex details.more > summary{font:700 .85rem var(--body); color:var(--accent); cursor:pointer; list-style:none}
+.ex details.more > summary::-webkit-details-marker{display:none}
+.ex details.more > summary::before{content:"+ "}
+.ex details.more[open] > summary::before{content:"− "}
+.ex details.more > div{display:grid; gap:6px; padding-top:6px}
+.grid{grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:10px}
+.warmline{font-size:.9rem; color:var(--muted)}
+.panel{gap:14px; grid-template-columns:minmax(0,1fr)}
+details.acc > .accb{grid-template-columns:minmax(0,1fr)}
+.days .day{padding:8px 8px}
 .foot{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px}
 .foot .panel{gap:8px}
 .foot p{font-size:.95rem}
 
 @media (max-width:900px){
-  .main{grid-template-columns:1fr}
+  .main{grid-template-columns:minmax(0,1fr)}
+  .viewtabs{display:none}
+  body[data-view="workout"] #diet, body[data-view="food"] #workout{display:none}
+  .wrap{gap:12px}
   .diet{position:static}
 }
 @media (max-width:640px){
@@ -261,6 +321,25 @@ body.locked{overflow:hidden}
   .day{scroll-snap-align:start}
   .day .today{position:static; order:-1; font-size:.62rem; color:var(--accent)}
   .top p{display:none}
+  .brand h1{font-size:1.35rem}
+  .topactions .syncbtn span{display:none}
+  .topactions .syncbtn{padding:0 11px}
+  .ex{grid-template-columns:96px minmax(0,1fr)}
+  .ex .thumb{min-height:96px}
+  .grid{grid-template-columns:1fr}
+  .panel{padding:14px; gap:12px}
+  .days .day{padding:6px 6px; gap:0}
+  .days .day .dn{font-size:1rem}
+  .days .day .dt, .days .day .sp, .days .day .ch{font-size:.72rem}
+  .dayhead{gap:8px}
+  .dayhead h2{display:none}
+  .dayhead .pill{margin-top:0}
+  .subswitches{display:grid; grid-template-columns:1fr 1fr; gap:6px}
+  .subswitches .switch{padding:6px 8px; gap:6px; font-size:.82rem; line-height:1.2; justify-content:flex-start}
+  .subswitches .track{transform:scale(.82); transform-origin:left center; margin-right:-6px}
+  .kcal strong{font-size:1.7rem}
+  .paincheck{padding:10px 12px}
+  .paincheck .chip{font-size:.82rem; padding:5px 10px}
   .top{gap:12px}
   .settings{width:100%; gap:10px}
   .seg button{padding:8px 10px; font-size:.88rem}
@@ -272,11 +351,14 @@ body.locked{overflow:hidden}
 </head>
 <body>
 <div class="wrap">
-  <header class="top">
-    <div>
-      <h1>Home Training Plan</h1>
-      <p>Build muscle and lose fat at home: 3 strength days and 4 recovery or sport days a week. Pick a day, then switch on <b>Playing sport today</b> if you have padel, futsal or cricket. The workout and meals adjust.</p>
+  <header class="topbar">
+    <div class="brand"><img src="icon-192.png" alt="" width="34" height="34"><div><h1>Home Training Plan</h1><span class="sub" id="todayLine"></span></div></div>
+    <div class="topactions">
+      <span id="syncField" hidden><button class="btn ghost syncbtn" type="button" id="syncBtn" data-state="ok"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 12a8 8 0 0 1-13.7 5.6M4 12A8 8 0 0 1 17.7 6.4M17 2.5v4h-4M7 21.5v-4h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Sync</span></button></span>
+      <button class="btn ghost syncbtn" type="button" id="setBtn" aria-expanded="false" aria-controls="settingsPanel"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg><span>Settings</span></button>
     </div>
+  </header>
+  <div class="panel settingsPanel" id="settingsPanel" hidden>
     <div class="settings">
       <div class="field">
         <label for="cheatSel">Cheat day</label>
@@ -294,16 +376,13 @@ body.locked{overflow:hidden}
         </div>
         <small>Switch each week so A and B even out.</small>
       </div>
-      <div class="field" id="syncField" hidden>
-        <span class="flabel">Devices</span>
-        <button class="btn ghost syncbtn" type="button" id="syncBtn" data-state="ok"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 12a8 8 0 0 1-13.7 5.6M4 12A8 8 0 0 1 17.7 6.4M17 2.5v4h-4M7 21.5v-4h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Sync</span></button>
-      </div>
       <div class="field">
         <span class="flabel" id="ramLabel">Ramadan mode</span>
         <label class="switch" for="ramToggle" style="height:42px"><input type="checkbox" id="ramToggle" aria-labelledby="ramLabel"><span class="track"></span><span>Sehri &amp; iftar plan</span></label>
       </div>
     </div>
-  </header>
+    <p class="sub">3 strength days and 4 recovery or sport days a week. Pick a day, switch on <b>Playing sport today</b> if you have padel, futsal or cricket, and the workout and meals adjust.</p>
+  </div>
 
   <div class="install" id="install" role="region" aria-label="Install the app">
     <img src="apple-touch-icon.png" alt="">
@@ -314,6 +393,11 @@ body.locked{overflow:hidden}
 
   <div id="medReminder"></div>
   <nav class="days" id="days" role="tablist" aria-label="Days of the week"></nav>
+  <div class="glance" id="glance" aria-label="Today at a glance"></div>
+  <nav class="viewtabs" aria-label="Sections">
+    <button type="button" data-view="workout">Workout &amp; food</button>
+    <button type="button" data-view="health">Progress &amp; health</button>
+  </nav>
 
   <div class="main">
     <section class="panel" id="workout" aria-live="polite"></section>
@@ -322,27 +406,12 @@ body.locked{overflow:hidden}
 
   <section class="panel health" id="health" aria-label="Progress and health"></section>
 
-  <div class="foot">
-    <div class="panel">
-      <h3>How to progress</h3>
-      <p>Rest 60–90 s between sets. The last 1–2 reps of each set should feel hard. When you hit the top of the rep range on every set, switch to the harder version shown on that card.</p>
-    </div>
-    <div class="panel">
-      <h3>Check-in</h3>
-      <p>Weigh yourself twice a week, first thing in the morning. Measure your waist and take a photo every 2 weeks. If your weight hasn't moved in 2 weeks, eat about 150–200 kcal less a day (for example, half a roti less at dinner).</p>
-    </div>
-    <div class="panel">
-      <h3>Doctor first</h3>
-      <p>Check your daily protein target with your doctor before raising it, and don't start creatine or protein powders without their OK. Stop any exercise that causes sharp joint pain.</p>
-    </div>
-  </div>
-  <p class="sub">Exercise photos: <a href="https://github.com/yuhonas/free-exercise-db" target="_blank" rel="noopener" style="color:inherit">Free Exercise DB</a> (public domain).</p>
 </div>
 
 <nav class="tabbar" aria-label="Sections">
-  <button type="button" id="tabW" aria-current="true">Workout</button>
-  <button type="button" id="tabF" aria-current="false">Food</button>
-  <button type="button" id="tabH" aria-current="false">Health</button>
+  <button type="button" data-view="workout" aria-current="true"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 10v4M6 7v10M18 7v10M21 10v4M6 12h12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>Workout</button>
+  <button type="button" data-view="food" aria-current="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M17 21V3c-2.2 1.2-3 3.5-3 6v5h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Food</button>
+  <button type="button" data-view="health" aria-current="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 17l5-5 4 3 8-8M15 7h5v5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Health</button>
 </nav>
 <div class="timerbar" id="timer" hidden role="timer" aria-live="polite">
   <span id="timerLabel">Rest</span><strong id="timerTime">1:15</strong>
@@ -576,7 +645,7 @@ const store = {
 // Each device keeps a change time per saved section. A sync pulls the other devices' copy,
 // keeps the newer version of each section, and pushes the result back. Data is encrypted
 // with a key derived from the sync code before it leaves the device.
-const SYNC_SKIP = ['htp-install-dismissed','htp-sync-code','htp-sync-meta','htp-sync-last'];
+const SYNC_SKIP = ['htp-install-dismissed','htp-sync-code','htp-sync-meta','htp-sync-last','htp-ui-open','htp-view'];
 function syncable(k){ return k.startsWith('htp-') && !SYNC_SKIP.includes(k); }
 function syncMeta(){ try{ return JSON.parse(localStorage.getItem('htp-sync-meta')||'{}'); }catch(e){ return {}; } }
 function touchKey(k){ try{ const m = syncMeta(); m[k] = Date.now(); localStorage.setItem('htp-sync-meta', JSON.stringify(m)); }catch(e){} scheduleSync(); }
@@ -753,20 +822,72 @@ function loggerHTML(id, sets){
     ${ps.hold?`<button class="btn ghost holdbtn" type="button" data-ex="${id}" data-sec="${ps.low}">Start ${ps.low} s timer</button>`:''}
     ${full && EX[id].hard ? `<p class="lvl"><b>Level up!</b> You hit ${ps.top} on every set. Next time try: ${EX[id].hard}.</p>`:''}</div>`;
 }
+/* ---------- Accordions remember whether you left them open ---------- */
+let uiOpen = store.get('htp-ui-open', {});
+const wideScreen = () => window.matchMedia('(min-width: 901px)').matches;
+const isOpen = (k, def) => (k in uiOpen) ? uiOpen[k] : !!def;
+function acc(k, title, summary, body, def){
+  return `<details class="acc" data-k="${k}" ${isOpen(k, def)?'open':''}><summary>${title}<span class="ss">${summary||''}</span></summary><div class="accb">${body}</div></details>`;
+}
+document.addEventListener('toggle', e=>{
+  const d = e.target; if(!(d instanceof HTMLDetailsElement) || !d.dataset.k) return;
+  uiOpen[d.dataset.k] = d.open; try{ localStorage.setItem('htp-ui-open', JSON.stringify(uiOpen)); }catch(_){}
+  if(d.open) setupCanvases();
+}, true);
+
+/* ---------- Today at a glance ---------- */
+function renderGlance(){
+  const g = document.getElementById('glance'); if(!g) return;
+  const key = dateKey(sel), t = typeOf(sel), sp = sport[sel], fl = !!flare[key];
+  const goal = (sp||fl) ? 15 : 12, w = water[key] || 0, taken = medsTaken[key] || {};
+  const tk = meds.filter(m=>taken[m]).length;
+  const kc = (sel===cheatDay && !ramadan) ? '2,500+' : sp ? '2,300' : '2,000';
+  let setsDone = 0, setsAll = 0;
+  if(t!=='R'){ const list = (sp||fl) ? WORK[t].list.filter(x=>x[2]!=='legs') : WORK[t].list;
+    list.forEach(([id,st])=>{ const ps = parseSets((sp||fl) ? st.replace(/^\d/,'2') : st); if(!ps) return; setsAll += ps.n; setsDone += ((logs[key]||{})[id]||[]).slice(0,ps.n).filter(v=>v>0).length; }); }
+  const dayTxt = t==='R' ? (fl?'Flare day':sp?'Game day':'Recovery') : 'Strength '+t;
+  const chips = [
+    setsAll ? `<button class="gchip ${setsDone>=setsAll?'done':''}" type="button" data-go="workout"><span class="k">Sets</span><b>${setsDone}/${setsAll}</b><span class="bar"><i style="width:${Math.round(100*setsDone/setsAll)}%"></i></span></button>` : '',
+    `<button class="gchip ${w>=goal?'done':''}" type="button" data-go="food" data-focus=".water"><span class="k">Water</span><b>${w}/${goal}</b><span class="bar"><i style="width:${Math.min(100,Math.round(100*w/goal))}%"></i></span></button>`,
+    meds.length ? `<button class="gchip ${tk===meds.length?'done':'warn'}" type="button" data-go="food" data-focus='[data-k="f-meds"]'><span class="k">Meds</span><b>${tk}/${meds.length}</b></button>` : '',
+    `<button class="gchip" type="button" data-go="food"><span class="k">Target</span><b>${kc}</b> kcal</button>`,
+  ].join('');
+  g.innerHTML = chips;
+  const tl = document.getElementById('todayLine'); if(tl) tl.textContent = (sel===todayIdx ? 'Today · ' : DAYS[sel]+' · ') + dayTxt + (sp?' · sport':'') + (fl?' · flare':'') + (sel===cheatDay&&!ramadan?' · cheat day':'');
+  g.querySelectorAll('.gchip').forEach(b=>b.onclick=()=>{ setView(b.dataset.go); if(b.dataset.focus){ const el = document.querySelector(b.dataset.focus); if(el){ if(el.tagName==='DETAILS') el.open = true; el.scrollIntoView({behavior: reduce.matches?'auto':'smooth', block:'center'}); el.classList.add('flash'); setTimeout(()=>el.classList.remove('flash'),1600); } } });
+}
+
+/* ---------- Views (Workout / Food / Health) ---------- */
+let view = store.get('htp-view', 'workout');
+function setView(v){
+  if(!['workout','food','health'].includes(v)) v = 'workout';
+  view = v; document.body.dataset.view = v;
+  try{ localStorage.setItem('htp-view', JSON.stringify(v)); }catch(e){}
+  document.querySelectorAll('.tabbar [data-view]').forEach(b=>b.setAttribute('aria-current', b.dataset.view===v));
+  document.querySelectorAll('.viewtabs [data-view]').forEach(b=>b.setAttribute('aria-current', v==='health' ? b.dataset.view==='health' : b.dataset.view==='workout'));
+  const top = document.getElementById('glance'); if(top && window.scrollY > top.offsetTop) window.scrollTo({top: Math.max(0, top.offsetTop - 8), behavior:'auto'});
+  setupCanvases();
+}
+document.querySelectorAll('.tabbar [data-view], .viewtabs [data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));
+
 function card(id, sets, opts={}){
   const e = EX[id], ph = PHOTO[id];
   const prog = e.easy ? `<p class="prog"><b>Easier:</b> ${e.easy}. <b>Harder:</b> ${e.hard}.</p>` : '';
   const media = ph
-    ? `<div class="photo" role="img" aria-label="Photos of ${e.name}: start and finish positions"><img src="img/${id}-0.jpg" alt="" loading="lazy"><img src="img/${id}-1.jpg" alt="" loading="lazy"><span class="tag t0">Start</span><span class="tag t1">Finish</span></div>`
-    : `<canvas data-ex="${id}" role="img" aria-label="Animated demo of ${e.name}"></canvas>`;
+    ? `<div class="photo"><img src="img/${id}-0.jpg" alt="" loading="lazy"><img src="img/${id}-1.jpg" alt="" loading="lazy"></div>`
+    : `<canvas data-ex="${id}" aria-hidden="true"></canvas>`;
   const q = ph ? ph.q : (VQ[id] || e.name);
   const vid = VID[id]
     ? `<div><a class="vid" data-id="${id}" href="https://www.youtube.com/watch?v=${VID[id]}" target="_blank" rel="noopener">Watch form video ↗</a><a class="vid more" href="https://www.youtube.com/results?search_query=${encodeURIComponent(q)}" target="_blank" rel="noopener">More videos</a></div>`
     : `<a class="vid" href="https://www.youtube.com/results?search_query=${encodeURIComponent(q)}" target="_blank" rel="noopener">Watch videos ↗</a>`;
-  return `<article class="ex">${media}
+  return `<article class="ex">
+  <button class="thumb" type="button" data-open="${id}" aria-label="Show ${e.name} demo and video">${media}<span class="play" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14"><path d="M8 5v14l11-7z" fill="#fff"/></svg></span></button>
   <div class="ex-body"><div class="ex-top"><h4>${e.name}</h4><span class="sets">${sets}</span></div>
-  ${ph && ph.note ? `<p class="pnote">${ph.note}</p>` : ''}
-  <ul class="cues">${(e.cues||[]).map(c=>`<li>${c}</li>`).join('')}</ul>${prog}${opts.log?loggerHTML(id, sets):''}${vid}</div></article>`;
+  ${opts.log?loggerHTML(id, sets):''}
+  <details class="more"><summary>Form tips &amp; video</summary><div>
+    ${ph && ph.note ? `<p class="pnote">${ph.note}</p>` : ''}
+    <ul class="cues">${(e.cues||[]).map(c=>`<li>${c}</li>`).join('')}</ul>${prog}${vid}</div></details>
+  </div></article>`;
 }
 function renderDays(){
   document.getElementById('days').innerHTML = DAYS.map((d,i)=>{
@@ -803,8 +924,10 @@ function renderWorkout(){
 
   // muscle check before strength work
   if(t!=='R'){
-    h += `<div class="paincheck"><p>Before you start: how do your muscles feel today?</p>
-      <div class="chips">${PAIN.map(([v,l])=>`<button class="chip pchip" type="button" data-v="${v}" aria-pressed="${pc===v}">${l}</button>`).join('')}</div></div>`;
+    h += pc
+      ? `<div class="paincheck done"><p>Muscles today: <b>${PAIN.find(x=>x[0]===pc)[1]}</b></p><button class="chip" type="button" id="painReset">Change</button></div>`
+      : `<div class="paincheck"><p>Before you start: how do your muscles feel today?</p>
+      <div class="chips">${PAIN.map(([v,l])=>`<button class="chip pchip" type="button" data-v="${v}" aria-pressed="false">${l}</button>`).join('')}</div></div>`;
     if(pc==='urine'){
       h += `<div class="alert"><p><b>Don't train today. Contact your doctor today.</b> Dark or cola-coloured urine together with muscle pain needs checking the same day, especially if you take cholesterol medicine. If you also feel very weak or unwell, go to the emergency department.</p></div>`;
       document.getElementById('workout').innerHTML = h; bindWorkout(); return;
@@ -821,12 +944,12 @@ function renderWorkout(){
     if(sp && !fl) h += `<p class="note">Sport day: your legs get worked in the game, so do the upper-body and core moves only, <b>2 sets each</b> (about 15 min), and skip the finisher. Prefer the full session? Do it the morning after instead.</p>`;
     h += fl
       ? `<div class="section"><div class="section-head"><h3>Warm-up · 5 min</h3></div><ul class="rules"><li>Arm circles, 10 each way</li><li>Shoulder rolls, 10</li><li>5 slow cat-cows, if your knees are OK</li></ul></div>`
-      : `<div class="section"><div class="section-head"><h3>Warm-up · 5 min</h3></div>
-      <div class="warm">${card('jacks','1 min')}<ul><li>Arm circles, 10 each way</li><li>10 slow bodyweight squats</li><li>10 hip hinges (hands on hips, push hips back)</li><li>5 cat-cows</li></ul></div></div>`;
+      : acc('w-warm', '<h3>Warm-up · 5 min</h3>', 'Jumping jacks, arm circles, squats, hip hinges, cat-cow',
+        `<div class="grid">${card('jacks','1 min')}</div><ul class="rules"><li>Arm circles, 10 each way</li><li>10 slow bodyweight squats</li><li>10 hip hinges (hands on hips, push hips back)</li><li>5 cat-cows</li></ul>`, false);
     h += `<div class="section"><div class="section-head"><h3>${short?'Main work · upper + core':'Main work'}</h3><p>Log your reps. A rest timer starts after each set.</p></div>
       <div class="grid">${list.map(([id,s])=>card(id, short ? s.replace(/^\d/,'2') : s, {log:true})).join('')}</div></div>`;
-    if(!short && !ramadan) h += `<div class="section"><div class="section-head"><h3>Finisher · 8–10 min</h3><p>3–4 rounds, 60 s rest between rounds</p></div>
-      <div class="grid">${card('burpee','10 reps')}${card('climber','20 reps')}${card('sqjump','10 reps')}</div></div>`;
+    if(!short && !ramadan) h += acc('w-fin', '<h3>Finisher · 8–10 min</h3>', '3–4 rounds: 10 burpees, 20 mountain climbers, 10 squat jumps',
+      `<div class="grid">${card('burpee','10 reps')}${card('climber','20 reps')}${card('sqjump','10 reps')}</div>`, false);
   } else if(fl){
     h += `<div class="section"><div class="section-head"><h3>Gentle movement</h3></div>
       <p class="note calm">Rest is the plan today. If the painful joint allows it, a slow 10-minute walk and some cat-cows keep you loose.</p>
@@ -848,13 +971,14 @@ function bindWorkout(){
   const key = dateKey(sel);
   document.getElementById('sportToggle').onchange = e => { sport[sel] = e.target.checked; store.set('htp-sport', sport); render(); };
   document.getElementById('flareToggle').onchange = e => { if(e.target.checked) flare[key]=true; else delete flare[key]; store.set('htp-flare', flare); render(); };
+  const pr = document.getElementById('painReset'); if(pr) pr.onclick = ()=>{ delete pain[key]; store.set('htp-pain', pain); renderWorkout(); setupCanvases(); };
   document.querySelectorAll('.pchip').forEach(b=>b.onclick=()=>{ if(pain[key]===b.dataset.v) delete pain[key]; else pain[key]=b.dataset.v; store.set('htp-pain', pain); renderWorkout(); setupCanvases(); });
   document.querySelectorAll('.setbox input').forEach(inp=>{
     inp.onchange = ()=>{
       const id = inp.dataset.ex, k = +inp.dataset.k, n = +inp.dataset.n, v = Math.max(0, Math.min(999, parseInt(inp.value,10)||0));
       logs[key] = logs[key] || {}; const arr = logs[key][id] = logs[key][id] || [];
       arr[k] = v || 0; store.set('htp-log', logs);
-      inp.classList.toggle('done', v>0);
+      inp.classList.toggle('done', v>0); renderGlance();
       const ps = parseSets(inp.closest('.ex').querySelector('.sets').textContent);
       if(v>0 && k < n-1 && !(ps && ps.hold)) startTimer(75, 'Rest');
       // refresh the level-up line without losing focus elsewhere
@@ -908,11 +1032,12 @@ function renderDiet(){
     <div class="glasses" role="group" aria-label="Water glasses, tap to fill">${Array.from({length:goal},(_,k)=>`<button class="glass ${k<glasses?'full':''}" type="button" data-n="${k+1}" aria-label="${k+1} glasses"></button>`).join('')}</div>
     <span class="sub">One glass = 250 ml. ${sp||fl?'Extra water today for '+(fl?'the flare':'the game')+'.':'Water also helps keep uric acid down.'}</span></div>`;
   const taken = medsTaken[key] || {};
-  const medsHTML = `<div class="section"><h3>${ramadan?'Medicines':"Tonight's medicines"}</h3>${meds.length
+  const medsBody = `${meds.length
     ? `<ul class="medlist">${meds.map((m,k)=>`<li><label><input type="checkbox" class="medchk" data-m="${esc(m)}" ${taken[m]?'checked':''}> ${esc(m)}</label></li>`).join('')}</ul>
        ${meds.every(m=>taken[m])?'<p class="okmsg">All taken. Nice.</p>':''}`
     : `<p class="empty">Add your nightly medicines in <a href="#health" class="golink">Health → Medicines</a> and tick them off here each night. They're saved only on this device.</p>`}
-    ${ramadan?'<p class="sub">Ask your doctor whether your night medicines should move to after iftar or to sehri during Ramadan.</p>':''}</div>`;
+    ${ramadan?'<p class="sub">Ask your doctor whether your night medicines should move to after iftar or to sehri during Ramadan.</p>':''}`;
+  const medsHTML = meds.length ? medsBody : `<div class="section"><h3>${ramadan?'Medicines':"Tonight's medicines"}</h3>${medsBody}</div>`;
   const checkin = ramadan ? '' : plan
     ? `<div class="checkin"><p><b>${isToday?"Today's":DAYS[sel]+"'s"} meals are planned</b> from your answers: ${Q.map(q=>q.opts.find(o=>o[0]===plan.a[q.k])[1].toLowerCase()).join(' · ')}. Tap <b>Swap</b> on any meal you don't fancy.</p>
         <button class="btn ghost" id="redo" type="button">Change my answers</button></div>`
@@ -927,7 +1052,7 @@ function renderDiet(){
     ${checkin}
     ${plan||ramadan?'':'<h3>Suggested menu</h3>'}
     <ul class="meals">${meals.map(m=>`<li class="${m[2]||''}"><span class="when">${m[0]}</span><div><span>${m[1]}</span>${m[4]?`<span class="sub">${m[4]}</span>`:''}${plan&&!ramadan&&m[3]?`<button class="swap" type="button" data-slot="${m[3]}">Swap</button>`:''}</div></li>`).join('')}</ul>
-    ${medsHTML}
+    ${meds.length ? acc('f-meds', `<h3>${ramadan?'Medicines':"Tonight's medicines"}</h3>`, meds.every(m=>taken[m])?'All taken':`${meds.filter(m=>taken[m]).length} of ${meds.length} taken`, medsBody, !meds.every(m=>taken[m])) : medsHTML}
     ${ramadan?`<div class="section"><h3>Ramadan tips</h3><ul class="rules">
       <li>Spread water out: 2 glasses at iftar, 1–2 every hour until bed, and 2 at sehri.</li>
       <li>Open with dates and water, then pause before the main meal.</li>
@@ -935,7 +1060,7 @@ function renderDiet(){
       <li>Keep protein at sehri (eggs, dahi, milk). It keeps you full longer.</li>
       <li>Try to get 6–7 hours of sleep across the night and a short nap.</li>
     </ul></div>`:''}
-    <div class="section" ${ramadan?'hidden':''}><h3>Hungry at night?</h3>
+    ${ramadan?'':acc('f-night','<h3>Hungry at night?</h3>', NIGHT[nightIdx][0], `
       <div class="checkin night">
         <p class="sub">First drink a glass of water and wait 10 minutes. Still hungry? Have this:</p>
         <p class="nsnack"><b>${NIGHT[nightIdx][0]}</b> <span class="sub">· about ${NIGHT[nightIdx][1]} kcal</span></p>
@@ -947,15 +1072,15 @@ function renderDiet(){
         <li>Hungry most nights? Put more protein and sabzi in dinner, or eat dinner a bit later.</li>
         <li>Brush your teeth after your last snack. It's a simple signal that eating is done for the day.</li>
         <li>Staying up past midnight is the biggest trigger. Sleeping earlier cuts most night hunger.</li>
-      </ul></div>
-    ${cheat && !ramadan?`<div class="section"><h3>Cheat day rules</h3><ul class="rules">
+      </ul>`, false)}
+    ${cheat && !ramadan?acc('f-cheat','<h3>Cheat day rules</h3>','One meal, then back to plan',`<ul class="rules">
       <li>One big meal, not a full day of grazing. Breakfast and lunch stay normal.</li>
       <li>Enjoy it with no guilt, then go back to the plan at your next meal.</li>
       <li>Have water, salted lassi or a diet drink with it, not a regular cold drink.</li>
       <li>Still skip nihari, paye, kaleji and other organ meats.</li>
       <li>Expect the scale to jump the next morning. That's water and salt, not fat, and it's gone in 2–3 days.</li>
-    </ul></div>`:''}
-    <div class="section"><h3>Every day</h3><ul class="rules">
+    </ul>`, true):''}
+    ${acc('f-rules','<h3>Every day</h3>','Water, protein, foods to skip',`<ul class="rules">
       <li>Water: about 3 L, 3.5–4 L on sport days.</li>
       <li>Some protein at every meal: eggs, dahi, chicken, fish, daal.</li>
       <li>Red meat (beef, mutton) once a week at most. Skip kaleji, kapooray, magaz and prawns.</li>
@@ -963,7 +1088,8 @@ function renderDiet(){
       <li>Skip chakotra (grapefruit) and its juice. It can raise the level of some cholesterol medicines in your blood. Check with your doctor before having it.</li>
       <li>1 tbsp oil per dish, 1 roti per meal. Cut rice portions before cutting protein.</li>
       <li>7–8 hours of sleep.</li>
-    </ul></div>`;
+    </ul>`, false)}`;
+  renderGlance();
 }
 function bindDiet(){
   const key = dateKey(sel);
@@ -1012,7 +1138,7 @@ function renderReminder(){
   const due = now.getHours()*60+now.getMinutes() >= hh*60+mm;
   if(meds.length && due && !meds.every(m=>taken[m])){
     box.innerHTML = `<div class="reminder">Tonight's medicines aren't ticked off yet. <button class="btn" type="button" id="remGo">Open</button></div>`;
-    document.getElementById('remGo').onclick = ()=>{ sel = todayIdx; render(); setTimeout(()=>{ const m=document.querySelector('.medlist'); m && m.scrollIntoView({behavior:'smooth', block:'center'}); }, 50); };
+    document.getElementById('remGo').onclick = ()=>{ sel = todayIdx; render(); setView('food'); setTimeout(()=>{ const d=document.querySelector('[data-k="f-meds"]'); if(d) d.open=true; const m=document.querySelector('.medlist'); m && m.scrollIntoView({behavior:'smooth', block:'center'}); }, 50); };
   } else box.innerHTML = '';
 }
 
@@ -1057,10 +1183,10 @@ function renderHealth(){
   let days = null; if(nextTest){ days = Math.round((new Date(nextTest+'T00:00') - new Date(todayIso()+'T00:00'))/864e5); }
   const icsOK = hosted;
   document.getElementById('health').innerHTML = `
-  <div class="section-head"><h2>Progress &amp; health</h2><p>Saved on this device, and on your other devices if you turn on sync (encrypted first). None of it is in the website's code.</p></div>
+  <p class="sub">Saved on this device, and on your other devices if you turn on sync (encrypted first). None of it is in the website's code.</p>
   <div class="hgrid">
-    <div class="hcard">
-      <h4>Weight &amp; waist</h4>
+    <details class="hcard acc" data-k="h-body" ${isOpen('h-body', true)?'open':''}>
+      <summary><h4>Weight &amp; waist</h4><span class="ss">${(last ? last.w+' kg' : 'No entries yet') + (change!==null ? ' · '+(change>0?'+':'')+change.toFixed(1)+' kg' : '')}</span></summary><div class="accb">
       <form class="frm" id="bodyForm">
         <label>Date<input type="date" id="bDate" value="${todayIso()}" required></label>
         <label>Weight kg<input type="number" id="bW" step="0.1" min="30" max="250" inputmode="decimal"></label>
@@ -1073,10 +1199,10 @@ function renderHealth(){
       ${body.length?`<div class="tblwrap"><table class="tbl"><thead><tr><th>Date</th><th>kg</th><th>Waist</th><th></th></tr></thead><tbody>
         ${[...body].reverse().slice(0,6).map(b=>`<tr><td>${fmtD(b.d)}</td><td>${b.w||'–'}</td><td>${b.waist||'–'}</td><td><button class="xbtn" type="button" data-del-body="${b.d}" aria-label="Delete entry from ${fmtD(b.d)}">×</button></td></tr>`).join('')}
       </tbody></table></div>`:''}
-    </div>
+    </div></details>
 
-    <div class="hcard">
-      <h4>Blood tests</h4>
+    <details class="hcard acc" data-k="h-labs" ${isOpen('h-labs', wideScreen())?'open':''}>
+      <summary><h4>Blood tests</h4><span class="ss">${(labs.length ? 'Latest '+fmtD(labs[labs.length-1].d) : 'No results yet') + (days!==null && days>=0 ? ' · next in '+days+' d' : '')}</span></summary><div class="accb">
       <form class="frm" id="labForm">
         <label>Date<input type="date" id="lDate" value="${todayIso()}" required></label>
         ${LABS.map(([k,n,u])=>`<label>${n}${u?' '+u:''}<input type="number" id="l_${k}" step="0.01" min="0" inputmode="decimal"></label>`).join('')}
@@ -1088,17 +1214,17 @@ function renderHealth(){
       </tbody></table></div>`:'<p class="empty">Add each report as it comes. Your doctor sets your targets.</p>'}
       <form class="frm" id="nextForm"><label>Next blood test<input type="date" id="nDate" value="${nextTest}"></label><button class="btn ghost" type="submit">Save</button></form>
       ${days!==null?`<p class="sub">${days>0?`In ${days} day${days===1?'':'s'}.`:days===0?'Today.':`${-days} day${days===-1?'':'s'} ago. Add the results above.`} Mention your new training to your doctor, since exercise can affect some muscle and kidney results.</p>`:''}
-    </div>
+    </div></details>
 
-    <div class="hcard">
-      <h4>Medicines</h4>
+    <details class="hcard acc" data-k="h-meds" ${isOpen('h-meds', false)?'open':''}>
+      <summary><h4>Medicines</h4><span class="ss">${meds.length ? meds.length+' added' : 'None added yet'}</span></summary><div class="accb">
       <p class="sub">Add what you take each night. You'll tick them off in the Food section, and get a reminder on this screen if they're not ticked by your reminder time.</p>
       ${meds.length?`<ul class="medlist">${meds.map((m,k)=>`<li style="display:flex;align-items:center;justify-content:space-between"><span>${esc(m)}</span><button class="xbtn" type="button" data-del-med="${k}" aria-label="Remove ${esc(m)}">×</button></li>`).join('')}</ul>`:''}
       <form class="frm" id="medForm"><label style="flex:1">Medicine and dose<input type="text" id="mName" maxlength="60" placeholder="Name and dose" style="width:100%"></label><button class="btn" type="submit">Add</button></form>
-    </div>
+    </div></details>
 
-    <div class="hcard">
-      <h4>Daily reminders</h4>
+    <details class="hcard acc" data-k="h-rem" ${isOpen('h-rem', false)?'open':''}>
+      <summary><h4>Daily reminders</h4><span class="ss">${remind.am+' and '+remind.pm}</span></summary><div class="accb">
       <p class="sub">Adds two repeating events to your phone's calendar, which then sends the notifications.</p>
       <div class="frm">
         <label>Food check-in<input type="time" id="rAm" value="${remind.am}"></label>
@@ -1106,10 +1232,10 @@ function renderHealth(){
       </div>
       <button class="btn" type="button" id="icsBtn">Add reminders to my calendar</button>
       ${icsOK?'':'<p class="sub">This button works in the installed app or on your website, not inside Claude.</p>'}
-    </div>
+    </div></details>
 
-    <div class="hcard" id="syncCard">
-      <h4>Sync across devices</h4>
+    <details class="hcard acc" data-k="h-sync" ${isOpen('h-sync', false)?'open':''} id="syncCard">
+      <summary><h4>Sync across devices</h4><span class="ss">${!syncAvailable ? 'Website only' : syncCode() ? syncAgo() : 'Off'}</span></summary><div class="accb">
       ${!syncAvailable ? '<p class="sub">Sync works in the app at home-training-plan.pages.dev, not inside Claude. Use the backup code below here.</p>'
       : syncCode() ? `
         <p><b id="syncState">${syncStatus || syncAgo()}</b></p>
@@ -1123,15 +1249,22 @@ function renderHealth(){
         <div class="row"><button class="btn" type="button" id="syncStart">Turn on sync</button></div>
         <form class="frm" id="syncJoin"><label style="flex:1">I have a code<input type="text" id="syncIn" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX-XXXX-XXXX-XXXX-XXXX-XXXX" style="width:100%"></label><button class="btn ghost" type="submit">Connect</button></form>
         <p class="sub" id="syncState" role="status">${syncStatus}</p>`}
-    </div>
-    <div class="hcard">
-      <h4>Manual backup</h4>
+    </div></details>
+    <details class="hcard acc" data-k="h-bk" ${isOpen('h-bk', false)?'open':''}>
+      <summary><h4>Manual backup</h4><span class="ss">${'Copy or restore a code'}</span></summary><div class="accb">
       <p class="sub">A one-off copy of everything as a code. Paste it into the app on another device, or keep it somewhere safe.</p>
       <button class="btn ghost" type="button" id="bkCopy">Copy backup code</button>
       <textarea id="bkText" placeholder="Paste a backup code here" aria-label="Backup code"></textarea>
       <button class="btn" type="button" id="bkRestore">Restore from code</button>
       <p class="sub" id="bkMsg" role="status"></p>
-    </div>
+    </div></details>
+    <details class="hcard acc" data-k="h-guide" ${isOpen('h-guide', false)?'open':''}>
+      <summary><h4>Guide</h4><span class="ss">Progress, check-ins, doctor</span></summary><div class="accb">
+      <p><b>How to progress.</b> Rest 60–90 s between sets. The last 1–2 reps of each set should feel hard. When you hit the top of the rep range on every set, the app tells you which harder version to move to.</p>
+      <p><b>Check-in.</b> Weigh yourself twice a week, first thing in the morning. Measure your waist and take a photo every 2 weeks. If your weight hasn't moved in 2 weeks, eat about 150–200 kcal less a day (for example, half a roti less at dinner).</p>
+      <p><b>Doctor first.</b> Check your daily protein target with your doctor before raising it, and don't start creatine or protein powders without their OK. Stop any exercise that causes sharp joint pain.</p>
+      <p class="sub">Exercise photos: <a href="https://github.com/yuhonas/free-exercise-db" target="_blank" rel="noopener" style="color:inherit">Free Exercise DB</a> (public domain).</p>
+    </div></details>
   </div>`;
   bindHealth();
 }
@@ -1229,6 +1362,8 @@ function closeVideo(){
   if(lastFocus) lastFocus.focus();
 }
 document.addEventListener('click', ev=>{
+  const th = ev.target.closest('.thumb[data-open]');
+  if(th){ ev.preventDefault(); openVideo(th.dataset.open); return; }
   const a = ev.target.closest('a.vid[data-id]');
   if(a && !vm.contains(a)){ ev.preventDefault(); openVideo(a.dataset.id); }
 });
@@ -1237,16 +1372,7 @@ vm.addEventListener('click', ev=>{ if(ev.target===vm) closeVideo(); });
 document.addEventListener('keydown', ev=>{ if(ev.key==='Escape' && !vm.hidden) closeVideo(); });
 
 /* ---------- Phone: bottom tabs ---------- */
-const tabW = document.getElementById('tabW'), tabF = document.getElementById('tabF'), tabH = document.getElementById('tabH');
-const goTo = id => document.getElementById(id).scrollIntoView({behavior: reduce.matches ? 'auto' : 'smooth', block:'start'});
-tabW.onclick = ()=>goTo('workout');
-tabF.onclick = ()=>goTo('diet');
-tabH.onclick = ()=>goTo('health');
-window.addEventListener('scroll', ()=>{
-  const mid = window.innerHeight*0.5, h = document.getElementById('health').getBoundingClientRect().top < mid;
-  const f = !h && document.getElementById('diet').getBoundingClientRect().top < mid;
-  tabH.setAttribute('aria-current', h); tabF.setAttribute('aria-current', f); tabW.setAttribute('aria-current', !f && !h);
-}, {passive:true});
+const goTo = id => setView(id==='diet' ? 'food' : id);
 
 /* ---------- Install as an app (works when hosted on your own site) ---------- */
 const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
@@ -1361,11 +1487,16 @@ renderHealth();
   const target = {workout:'#workout', water:'.water', meds:'.medlist, #diet .empty', health:'#health'}[go];
   if(!target) return;
   if(sel !== todayIdx){ sel = todayIdx; render(); }
+  setView(go==='water'||go==='meds' ? 'food' : go);
+  if(go==='meds'){ const d=document.querySelector('[data-k="f-meds"]'); if(d) d.open=true; }
   setTimeout(()=>{ const el = document.querySelector(target); if(el){ el.scrollIntoView({block: go==='workout'||go==='health' ? 'start' : 'center'}); if(go==='water'||go==='meds'){ el.classList.add('flash'); setTimeout(()=>el.classList.remove('flash'), 1600); } } }, 120);
   try{ history.replaceState(null, '', location.pathname); }catch(e){}
 })();
 function showSyncButton(){ const f = document.getElementById('syncField'); if(f) f.hidden = !(syncAvailable && syncCode()); setSyncStatus(syncStatus); }
 document.getElementById('syncBtn').onclick = ()=>runSync(true);
+const setBtn = document.getElementById('setBtn'), setPanel = document.getElementById('settingsPanel');
+setBtn.onclick = ()=>{ setPanel.hidden = !setPanel.hidden; setBtn.setAttribute('aria-expanded', !setPanel.hidden); };
+setView(view);
 showSyncButton();
 if(syncAvailable && syncCode()){
   runSync(false);
