@@ -285,17 +285,20 @@ details.acc > .accb{padding:0 14px 14px; display:grid; gap:10px}
 details.hcard{padding:0}
 details.hcard > summary h4{font-size:1.2rem; flex:none}
 /* exercise rows */
-.ex{display:grid; grid-template-columns:150px minmax(0,1fr); align-items:start; border-radius:14px}
-.ex .thumb{all:unset; cursor:zoom-in; position:relative; display:block; box-sizing:border-box; width:calc(100% - 10px); margin:10px 0 10px 10px; aspect-ratio:4/3; border-radius:10px; overflow:hidden; background:#111}
+.ex{display:flex; flex-direction:column; align-items:stretch; border-radius:14px}
+.ex .thumb{all:unset; cursor:zoom-in; position:relative; display:block; box-sizing:border-box; width:100%; aspect-ratio:5/2; overflow:hidden; background:#111; border-bottom:1px solid var(--line)}
 .ex .thumb:focus-visible{outline:3px solid var(--accent); outline-offset:-3px}
 .ex .thumb .photo, .ex .thumb canvas{position:absolute; inset:0; width:100%; height:100%; aspect-ratio:auto; border:0}
 .ex .thumb .tag{display:none}
-.ex .thumb canvas{background:var(--bg)}
+.ex .thumb canvas{background:var(--bg); object-fit:contain}
+.ex .thumb .photo img{object-position:center 40%}
 @media (prefers-reduced-motion: reduce){ .ex .thumb .photo img{width:100%} .ex .thumb .photo img:nth-child(2){display:none} }
-.ex .thumb .play{position:absolute; right:6px; bottom:6px; width:26px; height:26px; border-radius:50%; background:rgba(0,0,0,.6); display:grid; place-items:center}
-.ex-body{padding:10px 12px; gap:6px}
-.ex-top h4{font-size:1.15rem; line-height:1.15}
-.ex-top{flex-direction:column; align-items:flex-start; gap:2px}
+.ex .thumb .play{position:absolute; right:10px; bottom:10px; width:34px; height:34px; border-radius:50%; background:rgba(0,0,0,.6); display:grid; place-items:center}
+.ex-body{padding:12px 14px 14px; gap:8px; grid-template-columns:minmax(0,1fr)}
+.ex-top h4{font-size:1.25rem; line-height:1.15}
+.ex .setrow{flex-wrap:nowrap}
+.ex .setbox{flex:1 1 0; min-width:0}
+.ex .setbox input{width:100%}
 .ex details.more > summary{font:700 .85rem var(--body); color:var(--accent); cursor:pointer; list-style:none}
 .ex details.more > summary::-webkit-details-marker{display:none}
 .ex details.more > summary::before{content:"+ "}
@@ -326,10 +329,11 @@ details.acc > .accb{grid-template-columns:minmax(0,1fr)}
   .brand h1{font-size:1.35rem}
   .topactions .syncbtn span{display:none}
   .topactions .syncbtn{padding:0 11px}
-  .ex{grid-template-columns:122px minmax(0,1fr)}
-  .ex-top .sets{font-size:.95rem}
-  .setbox input{width:48px; height:38px}
-  .ex-body{padding:10px 10px 10px 12px}
+  .ex .thumb{aspect-ratio:5/2}
+  .ex .thumb .photo img{object-position:center 30%}
+  .ex-top .sets{font-size:1rem}
+  .ex .setbox input{height:38px}
+  .ex-body{padding:10px 12px 12px}
   .grid{grid-template-columns:1fr}
   .panel{padding:14px; gap:12px}
   .days .day{padding:6px 6px; gap:0}
@@ -924,6 +928,14 @@ function renderWorkout(){
       <label class="switch flare" for="flareToggle"><input type="checkbox" id="flareToggle" ${fl?'checked':''}><span class="track"></span><span>Joint flare today</span></label>
     </div></div>`;
   if(ramadan) h += `<p class="note calm"><b>Ramadan:</b> train 60–90 minutes after iftar, once you've had water and a light meal. Keep the same sets, skip the finisher, and stop if you feel dizzy.</p>`;
+  if(!ramadan && !fl){
+    const bt = t==='R'
+      ? ['Any time', `<ul class="rules"><li>No strength session today. A 20–30 minute walk at any time counts, and a 10–15 minute walk after dinner helps digestion and blood sugar.</li><li>On a game day the sport is your workout. Eat a meal 2–3 hours before you play and drink water before, during and after.</li></ul>`]
+      : sp
+      ? ['Morning or midday', `<ul class="rules"><li>Do the short session in the morning or around midday, so your arms and core are fresh again by the time you play.</li><li>Or skip it today and do the full session the next morning.</li><li>Leave at least 4–5 hours between this session and the game.</li></ul>`]
+      : ['4–8 pm, after a meal', `<ul class="rules"><li><b>Best: about 4–8 pm.</b> Strength, power and flexibility peak in the late afternoon and early evening, and studies that compared the same programme done morning versus evening often found a little more muscle growth with evening training. The gap is small, though.</li><li><b>Consistency beats the clock.</b> If mornings are the only time you'll reliably train, train in the morning. Your body adapts to the time you train at. Just warm up a little longer, since joints are stiffer early on.</li><li><b>Food:</b> train 1–2 hours after a meal, or have a light snack (a banana or a few dates with some dahi) 30–60 minutes before. Don't train straight after a big meal.</li><li><b>Sleep:</b> finish at least 2–3 hours before bed, so you can wind down and sleep well. Muscle is built while you recover.</li><li><b>Water:</b> drink 1–2 glasses before and after. It also helps keep uric acid down.</li><li>Try to keep the same time on all three strength days, so it becomes a habit.</li></ul>`];
+    h += acc('w-time', '<h3>Best time</h3>', bt[0], bt[1], false);
+  }
   if(fl) h += `<div class="alert"><p><b>Flare day.</b> Rest the painful joint and skip any move that loads it. Drink extra water, keep taking your prescribed medicines, and contact your doctor if the pain is severe, comes with fever, or isn't easing after 2–3 days.</p></div>`;
 
   // muscle check before strength work
