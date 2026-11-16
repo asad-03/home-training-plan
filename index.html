@@ -14,7 +14,7 @@
 <title>Home Training Plan</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700&family=Barlow+Condensed:wght@600;700&family=Big+Shoulders+Display:wght@900&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   /* Layout: day strip on top, workout (wide) beside a sticky diet panel; stacks on phones */
@@ -126,7 +126,7 @@ button:focus-visible, input:focus-visible + .track{outline:3px solid var(--accen
 .pnote{font-size:.85rem; background:var(--accent-soft); color:var(--ink); padding:6px 10px; border-radius:8px}
 .vid{font-weight:700; font-size:.88rem; color:var(--accent); text-decoration:none; justify-self:start}
 .vid:hover{text-decoration:underline}
-.modal{position:fixed; inset:0; background:rgba(0,0,0,.72); display:flex; align-items:center; justify-content:center; padding:16px; z-index:50}
+.modal{position:fixed; inset:0; background:rgba(0,0,0,.72); display:flex; align-items:center; justify-content:center; padding:16px; z-index:70}
 .modal[hidden]{display:none}
 .mbox{background:var(--surface); color:var(--ink); border-radius:16px; width:min(860px,100%); max-height:100%; overflow:auto; display:grid; gap:12px; padding:16px}
 .mhead{display:flex; justify-content:space-between; align-items:center; gap:12px}
@@ -355,6 +355,73 @@ details.acc > .accb{grid-template-columns:minmax(0,1fr)}
   .warm{grid-template-columns:1fr}
   .panel{padding:16px}
 }
+/* ----- guided workout (full-screen, poster style) ----- */
+#guide{position:fixed; inset:0; z-index:60; --g-sun:#F2EEE3; --g-ink:#0E3B2C; --g-hot:#2F9E6E; --u:min(1vw,1.44vh);
+  font-family:'Archivo', var(--body); font-weight:500; overflow:hidden; background:var(--g-sun); user-select:none; -webkit-user-select:none; touch-action:manipulation}
+#guide[hidden]{display:none}
+@media (orientation:portrait){ #guide{--u:min(1.44vw,1vh)} }
+#guide .g-l{position:absolute; inset:0; display:grid; gap:calc(var(--u)*1.2) calc(var(--u)*2.4); padding:calc(var(--u)*2.4) calc(var(--u)*3.7) calc(max(var(--u)*2.4, env(safe-area-inset-bottom)))}
+#guide .g-sun{background:var(--g-sun); color:var(--g-ink)}
+#guide .g-ink{background:var(--g-ink); color:var(--g-sun)}
+#guide .big{font-family:'Big Shoulders Display','Barlow Condensed','Arial Narrow',sans-serif; font-weight:900; line-height:.84; text-transform:uppercase; letter-spacing:-.01em; margin:0}
+#guide button{font:inherit; color:inherit; background:none; border:0; padding:0; cursor:pointer}
+#guide button:focus-visible{outline:3px solid var(--g-hot); outline-offset:3px}
+.g-rail{grid-area:rail; display:flex; align-items:center; gap:calc(var(--u)*2.4); font-weight:700; font-size:max(14px, calc(var(--u)*1.6)); font-variant-numeric:tabular-nums}
+.g-seg{flex:1; display:flex; gap:calc(var(--u)*.5)}
+.g-seg i{flex:1; height:calc(var(--u)*.85); background:currentColor; opacity:.22}
+.g-seg i.d{opacity:1}
+.g-ctl{grid-area:ctl; display:flex; flex-wrap:wrap; align-items:end; gap:calc(var(--u)*1) calc(var(--u)*2.2); font-weight:700; font-size:max(15px, calc(var(--u)*1.7))}
+#guide .g-ctl button{border-bottom:3px solid currentColor; padding:calc(var(--u)*.6) 0 2px; min-height:40px}
+.g-ctl .g-sp{flex:1}
+#guide .g-rail button{border-bottom:3px solid currentColor; min-height:36px; font-weight:700}
+.g-duo{grid-area:photo; position:relative; background:var(--g-sun); overflow:hidden; outline:calc(var(--u)*.9) solid currentColor; align-self:start; justify-self:end; margin:calc(var(--u)*1.6) calc(var(--u)*1) 0 0}
+.g-duo img{width:100%; height:100%; object-fit:cover; display:block; filter:grayscale(1) contrast(1.35) brightness(1.1); mix-blend-mode:multiply}
+.g-duo::after{content:""; position:absolute; inset:0; background:var(--g-ink); mix-blend-mode:lighten}
+/* rep set */
+.g-work{grid-template-columns:auto minmax(0,1fr) auto; grid-template-rows:auto auto minmax(0,1fr) auto auto;
+  grid-template-areas:"rail rail rail" "name name photo" "num side photo" "num side rounds" "ctl ctl tap"}
+.g-work .g-duo{width:calc(var(--u)*38); height:calc(var(--u)*29); transform:rotate(3deg)}
+.g-name{grid-area:name; font-size:calc(var(--u)*11.8); text-wrap:balance; align-self:end}
+#guide .nb{white-space:nowrap}
+.g-name.long{font-size:calc(var(--u)*8.4)}
+.g-num{grid-area:num; font-size:calc(var(--u)*36); line-height:.8 !important; align-self:center; font-variant-numeric:tabular-nums; min-width:1.1ch}
+.g-name.long ~ .g-num{font-size:calc(var(--u)*30)}
+.g-side{grid-area:side; align-self:center; display:grid; gap:calc(var(--u)*2); justify-items:start; max-width:calc(var(--u)*22)}
+.g-side p{margin:0; font-weight:700; font-size:max(15px, calc(var(--u)*1.9)); line-height:1.25}
+.g-pm{display:flex; gap:calc(var(--u)*1.2)}
+#guide .g-pm button{width:calc(var(--u)*7.8); height:calc(var(--u)*7.8); min-width:52px; min-height:52px; background:var(--g-ink); color:var(--g-sun); font-family:'Big Shoulders Display','Barlow Condensed',sans-serif; font-weight:900; font-size:calc(var(--u)*6.5); line-height:1}
+.g-rounds{grid-area:rounds; display:flex; gap:calc(var(--u)*.85); align-self:end; justify-self:end}
+.g-rounds b{width:calc(var(--u)*7.8); height:calc(var(--u)*7.8); display:grid; place-items:center; border:calc(var(--u)*.5) solid var(--g-ink); font-family:'Big Shoulders Display','Barlow Condensed',sans-serif; font-weight:900; font-size:calc(var(--u)*4.6); line-height:1}
+.g-rounds b.d{background:var(--g-ink); color:var(--g-sun)}
+.g-rounds b.c{background:var(--g-hot); border-color:var(--g-hot); color:var(--g-sun)}
+#guide .g-tap{grid-area:tap; white-space:nowrap; justify-self:end; align-self:end; background:var(--g-ink); color:var(--g-sun); font-size:calc(var(--u)*4.2); padding:calc(var(--u)*1.1) calc(var(--u)*2.2) calc(var(--u)*.7)}
+/* countdown screens: the whole screen fills as time runs down */
+.g-drain{grid-template-columns:minmax(0,1fr) auto; grid-template-rows:auto auto minmax(0,1fr) auto auto;
+  grid-template-areas:"rail rail" "lab photo" "time photo" "nx nx" "ctl ctl"}
+.g-drain .g-duo{width:calc(var(--u)*25.4); height:calc(var(--u)*19.2); transform:rotate(-5deg)}
+.g-lab{grid-area:lab; font-size:calc(var(--u)*7.8); text-wrap:balance}
+.g-lab.long{font-size:calc(var(--u)*5.6)}
+.g-time{grid-area:time; font-size:calc(var(--u)*37); align-self:center; font-variant-numeric:tabular-nums}
+.g-nx{grid-area:nx; text-align:right; display:grid; gap:calc(var(--u)*.9); justify-items:end; font-weight:700; font-size:max(15px, calc(var(--u)*2))}
+.g-nx .big{font-size:calc(var(--u)*8.1); text-wrap:balance}
+.g-nx .big.long{font-size:calc(var(--u)*5.4)}
+.g-B{will-change:clip-path}
+@media (orientation:portrait){
+  .g-work{grid-template-columns:auto minmax(0,1fr); grid-template-rows:auto auto auto minmax(0,1fr) auto auto auto;
+    grid-template-areas:"rail rail" "name name" "photo photo" "num side" "rounds rounds" "tap tap" "ctl ctl"}
+  .g-work .g-duo{width:100%; height:calc(var(--u)*30); transform:rotate(-1.5deg); margin:calc(var(--u)*1) 0}
+  .g-num, .g-name.long ~ .g-num{font-size:calc(var(--u)*27)}
+  .g-rounds, #guide .g-tap{justify-self:stretch; text-align:center}
+  .g-rounds b{flex:1}
+  .g-drain{grid-template-columns:auto minmax(0,1fr); grid-template-rows:auto auto minmax(0,1fr) auto auto;
+    grid-template-areas:"rail rail" "lab lab" "time time" "photo nx" "ctl ctl"}
+  .g-drain .g-duo{align-self:end; justify-self:start; margin:0 0 calc(var(--u)*1) calc(var(--u)*1)}
+  .g-time{font-size:calc(var(--u)*33)}
+}
+.startguide{display:flex; align-items:center; justify-content:space-between; gap:12px; width:100%; background:#0E3B2C; color:#F2EEE3; border:0; border-radius:14px; padding:14px 18px; cursor:pointer; text-align:left; font-family:var(--body)}
+.startguide b{font-family:var(--display); font-size:1.6rem; line-height:1; text-transform:uppercase; letter-spacing:.01em; display:block}
+.startguide span{font-size:.9rem; opacity:.85}
+.startguide .go{flex:none; width:44px; height:44px; border-radius:50%; background:#F2EEE3; display:grid; place-items:center}
 </style>
 </head>
 <body>
@@ -421,6 +488,7 @@ details.acc > .accb{grid-template-columns:minmax(0,1fr)}
   <button type="button" data-view="food" aria-current="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M17 21V3c-2.2 1.2-3 3.5-3 6v5h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Food</button>
   <button type="button" data-view="health" aria-current="false"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M3 17l5-5 4 3 8-8M15 7h5v5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Health</button>
 </nav>
+<div id="guide" hidden role="dialog" aria-label="Guided workout"></div>
 <div class="timerbar" id="timer" hidden role="timer" aria-live="polite">
   <span id="timerLabel">Rest</span><strong id="timerTime">1:15</strong>
   <button type="button" id="timerPlus">+15 s</button><button type="button" id="timerSkip">Done</button>
@@ -666,7 +734,7 @@ const store = {
 // Each device keeps a change time per saved section. A sync pulls the other devices' copy,
 // keeps the newer version of each section, and pushes the result back. Data is encrypted
 // with a key derived from the sync code before it leaves the device.
-const SYNC_SKIP = ['htp-install-dismissed','htp-sync-code','htp-sync-meta','htp-sync-last','htp-ui-open','htp-view'];
+const SYNC_SKIP = ['htp-install-dismissed','htp-sync-code','htp-sync-meta','htp-sync-last','htp-ui-open','htp-view','htp-guide'];
 function syncable(k){ return k.startsWith('htp-') && !SYNC_SKIP.includes(k); }
 function syncMeta(){ try{ return JSON.parse(localStorage.getItem('htp-sync-meta')||'{}'); }catch(e){ return {}; } }
 function touchKey(k){ try{ const m = syncMeta(); m[k] = Date.now(); localStorage.setItem('htp-sync-meta', JSON.stringify(m)); }catch(e){} scheduleSync(); }
@@ -973,6 +1041,7 @@ function renderWorkout(){
 
   if(t!=='R'){
     const list = short ? WORK[t].list.filter(x=>x[2]!=='legs') : WORK[t].list;
+    h += `<button class="startguide" type="button" id="startGuide"><span><b>${Object.keys((logs[key]||{})).some(id=>list.some(x=>x[0]===id) && (logs[key][id]||[]).some(v=>v>0)) ? 'Continue workout' : 'Start workout'}</b><span>Full screen, one move at a time. Rests and timed moves run by themselves.</span></span><span class="go" aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20"><path d="M8 5v14l11-7z" fill="#0E3B2C"/></svg></span></button>`;
     if(sp && !fl) h += `<p class="note">Sport day: your legs get worked in the game, so do the upper-body and core moves only, <b>2 sets each</b> (about 15 min), and skip the finisher. Prefer the full session? Do it the morning after instead.</p>`;
     h += fl
       ? `<div class="section"><div class="section-head"><h3>Warm-up · 5 min</h3></div><ul class="rules"><li>Arm circles, 10 each way</li><li>Shoulder rolls, 10</li><li>5 slow cat-cows, if your knees are OK</li></ul></div>`
@@ -1003,6 +1072,7 @@ function bindWorkout(){
   const key = dateKey(sel);
   document.getElementById('sportToggle').onchange = e => { sport[sel] = e.target.checked; store.set('htp-sport', sport); render(); };
   document.getElementById('flareToggle').onchange = e => { if(e.target.checked) flare[key]=true; else delete flare[key]; store.set('htp-flare', flare); render(); };
+  const sg = document.getElementById('startGuide'); if(sg) sg.onclick = gStart;
   const pr = document.getElementById('painReset'); if(pr) pr.onclick = ()=>{ delete pain[key]; store.set('htp-pain', pain); renderWorkout(); setupCanvases(); };
   document.querySelectorAll('.pchip').forEach(b=>b.onclick=()=>{ if(pain[key]===b.dataset.v) delete pain[key]; else pain[key]=b.dataset.v; store.set('htp-pain', pain); renderWorkout(); setupCanvases(); });
   document.querySelectorAll('.setbox input').forEach(inp=>{
@@ -1536,6 +1606,193 @@ if(syncAvailable && syncCode()){
   window.addEventListener('online', ()=>runSync(false));
 }
 if(!reduce.matches) requestAnimationFrame(t=>frame(t));
+/* ---------- Guided workout: one move at a time, moves on by itself ---------- */
+const G = {el:document.getElementById('guide'), on:false, steps:[], i:0, phase:'', end:0, total:0, left:0, paused:false, int:null, t0:0, pausedMs:0, pauseAt:0, reps:0, lock:null, lastSec:-1, key:'', count:{sets:0, reps:0}};
+let gPref = Object.assign({voice:true, auto:false}, store.get('htp-guide', {}));
+const gFmt = s => Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
+const gSide = s => (String(s).match(/\/\s*(leg|side|arm)/)||[])[1] || '';
+const gLong = (txt, n) => String(txt).length > n ? ' long' : '';
+const gNb = txt => String(txt).replace(/\S+-\S+/g, w=>`<span class="nb">${w}</span>`);
+function gTone(freq, dur){
+  try{ actx = actx || new (window.AudioContext||window.webkitAudioContext)(); const o = actx.createOscillator(), g = actx.createGain();
+    o.frequency.value = freq; g.gain.value = .16; o.connect(g); g.connect(actx.destination); o.start(); o.stop(actx.currentTime + dur); }catch(e){}
+}
+function gSay(text){
+  if(!gPref.voice || !('speechSynthesis' in window)) return;
+  try{ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text); u.rate = 1; speechSynthesis.speak(u); }catch(e){}
+}
+function gBuild(){
+  const t = typeOf(sel), sp = sport[sel], fl = !!flare[G.key], short = sp || fl, steps = [];
+  if(t==='R') return steps;
+  const warm = fl ? [['armcirc',30,'10 each way'],['catcow',30,'5 slow reps']]
+    : [['jacks',60,'Keep it light'],['armcirc',30,'10 each way'],['squat',40,'10 slow reps'],['hinge',30,'10 reps'],['catcow',30,'5 slow reps']];
+  warm.forEach(([id,sec,note],k)=>steps.push({group:'Warm-up', kind:'timed', id, sec, note, k, n:warm.length, rest:0}));
+  const list = short ? WORK[t].list.filter(x=>x[2]!=='legs') : WORK[t].list;
+  list.forEach(([id,s0],e)=>{
+    const s = short ? s0.replace(/^\d/,'2') : s0, ps = parseSets(s); if(!ps) return;
+    for(let k=0;k<ps.n;k++) steps.push({group:'Main', kind:ps.hold?'hold':'reps', id, k, n:ps.n, ps, side:gSide(s), ex:e, exN:list.length, log:true, rest:75});
+  });
+  if(!short && !ramadan) for(let r=0;r<3;r++) [['burpee',10],['climber',20],['sqjump',10]].forEach(([id,reps],j)=>
+    steps.push({group:'Finisher', kind:'reps', id, fixed:reps, k:r, n:3, rest:(j===2 && r<2) ? 60 : 0}));
+  if(steps.length) steps[steps.length-1].rest = 0;
+  return steps;
+}
+const gLogged = s => s.log ? (+(((logs[G.key]||{})[s.id]||[])[s.k]) || 0) : 0;
+const gPrev = s => { const p = lastLog(s.id) || []; return +p[s.k] || 0; };
+function gTarget(s){
+  if(s.fixed) return s.fixed;
+  const prev = gPrev(s);
+  if(s.kind==='hold') return Math.min(Math.max(prev || s.ps.low, s.ps.low), Math.max(s.ps.top, s.ps.low));
+  return prev || s.ps.low;
+}
+function gDesc(s){   // what a step asks for, in a short line
+  if(s.kind==='timed') return s.note;
+  if(s.fixed) return s.fixed + ' reps';
+  const each = s.side ? ' each ' + s.side : '';
+  if(s.kind==='hold') return 'Hold for ' + gTarget(s) + ' seconds';
+  const prev = gPrev(s);
+  return prev ? 'Last time you got ' + prev + each + '.' : 'Aim for ' + s.ps.low + (s.ps.top>s.ps.low ? '–'+s.ps.top : '') + each + '.';
+}
+const gWhere = s => s.group==='Warm-up' ? `Warm-up ${s.k+1} of ${s.n}` : s.group==='Finisher' ? `Finisher, round ${s.k+1} of ${s.n}` : `Exercise ${s.ex+1} of ${s.exN}`;
+const gTitle = s => EX[s.id].name + (s.group==='Main' ? ', set ' + (s.k+1) : s.group==='Finisher' ? ', round ' + (s.k+1) : '');
+function gRail(s){
+  const main = G.steps.filter(x=>x.group==='Main'), exN = main.length ? main[0].exN : 0;
+  const doneN = !s ? exN : s.group==='Warm-up' ? 0 : s.group==='Finisher' ? exN : s.ex + 1;
+  return `<div class="g-rail"><span>${s ? gWhere(s) : 'Finished'}</span><span class="g-seg">${Array.from({length:exN},(_,k)=>`<i class="${k<doneN?'d':''}"></i>`).join('')}</span><span class="g-clock"></span><button type="button" data-act="end" aria-label="End the guided workout">End</button></div>`;
+}
+function gCtl(extra){
+  return `<div class="g-ctl"><button type="button" data-act="back">Back</button><button type="button" data-act="pause">${G.paused?'Resume':'Pause'}</button><button type="button" data-act="skip">Skip</button><span class="g-sp"></span>${extra||''}<button type="button" data-act="voice">Voice ${gPref.voice?'on':'off'}</button></div>`;
+}
+const gPhoto = id => PHOTO[id] ? `<div class="g-duo"><img src="img/${id}-1.jpg" alt=""></div>` : '';
+const gAutoBtn = () => `<button type="button" data-act="auto">Hands-free ${gPref.auto?'on':'off'}</button>`;
+function gDraw(){
+  const s = G.steps[G.i], ph = G.phase; let html = '';
+  if(ph==='done'){
+    html = `<div class="g-l g-drain g-ink">${gRail(null)}<div class="big g-lab">Workout done</div><div class="big g-time">${gFmt(Math.round(gElapsed()/1000))}</div>
+      <div class="g-nx"><span>You logged</span><b class="big">${G.count.sets} sets, ${G.count.reps} reps</b><span>Saved to today's log.</span></div>
+      <div class="g-ctl"><button type="button" data-act="end">Close</button></div></div>`;
+  } else if(ph==='work'){
+    const name = EX[s.id].name, each = s.side ? ' each ' + s.side : '', prev = s.fixed ? 0 : gPrev(s);
+    const side = s.fixed ? 'reps, then straight on to the next move.' : prev ? `reps to beat${each}. That's what you did last time on this set.` : `reps to aim for${each}. The target is ${s.ps.low}${s.ps.top>s.ps.low?'–'+s.ps.top:''}.`;
+    const boxes = Array.from({length:s.n},(_,k)=>{ const v = s.fixed ? 0 : (+(((logs[G.key]||{})[s.id]||[])[k]) || 0);
+      return `<b class="${k<s.k ? 'd' : k===s.k ? 'c' : ''}">${k<s.k && v ? v : k+1}</b>`; }).join('');
+    html = `<div class="g-l g-work g-sun">${gRail(s)}<h2 class="big g-name${gLong(name,10)}">${gNb(name)}</h2>${gPhoto(s.id)}
+      <div class="big g-num">${G.reps}</div>
+      <div class="g-side"><p>${side}</p>${s.fixed ? '' : `<div class="g-pm"><button type="button" data-act="minus" aria-label="One rep fewer">−</button><button type="button" data-act="plus" aria-label="One rep more">+</button></div>`}</div>
+      <div class="g-rounds" aria-label="${s.group==='Finisher'?'Rounds':'Sets'}">${boxes}</div>
+      <button type="button" class="big g-tap" data-act="done">Tap anywhere when done</button>
+      ${gCtl((VID[s.id] ? '<button type="button" data-act="video">Form video</button>' : '') + gAutoBtn())}</div>`;
+  } else {
+    const nxt = G.steps[G.i+1];
+    let lab, small, bigline, foot, pid, extra = '', scheme;
+    if(ph==='rest'){ lab = 'Rest'; small = 'Up next'; bigline = gTitle(nxt); foot = gDesc(nxt); pid = nxt.id; extra = '<button type="button" data-act="add">Add 15 seconds</button>' + gAutoBtn(); scheme = ['g-ink','g-sun']; }
+    else if(ph==='ready'){ lab = 'Get ready'; small = gWhere(s); bigline = gTitle(s); foot = gDesc(s); pid = s.id; scheme = ['g-ink','g-sun']; }
+    else { lab = EX[s.id].name; small = s.group==='Main' ? `Set ${s.k+1} of ${s.n}` : gWhere(s);
+      bigline = s.kind==='reps' ? `Aim for ${G.reps}` : s.kind==='hold' ? 'Hold it' : s.note;
+      foot = 'Starts and stops by itself.'; pid = s.id; scheme = ['g-sun','g-ink']; if(s.kind==='reps') extra = gAutoBtn(); }
+    const inner = `${gRail(ph==='rest' ? nxt : s)}<div class="big g-lab${gLong(lab,14)}">${gNb(lab)}</div>${gPhoto(pid)}<div class="big g-time"></div>
+      <div class="g-nx"><span>${small}</span><b class="big${gLong(bigline,18)}">${gNb(bigline)}</b><span>${foot}</span></div>${gCtl(extra)}`;
+    html = `<div class="g-l g-drain g-A ${scheme[0]}">${inner}</div><div class="g-l g-drain g-B ${scheme[1]}" aria-hidden="true">${inner}</div>`;
+  }
+  G.el.innerHTML = html; gPaint();
+}
+const gElapsed = () => (G.paused ? G.pauseAt : Date.now()) - G.t0 - G.pausedMs;
+function gPaint(){
+  const clock = gFmt(Math.max(0, Math.round(gElapsed()/1000)));
+  G.el.querySelectorAll('.g-clock').forEach(c=>{ if(c.textContent!==clock) c.textContent = clock; });
+  if(!G.total) return;
+  const leftMs = G.paused ? G.left : Math.max(0, G.end - Date.now()), sec = Math.ceil(leftMs/1000), txt = gFmt(sec);
+  G.el.querySelectorAll('.g-time').forEach(t=>{ if(t.textContent!==txt) t.textContent = txt; });
+  const b = G.el.querySelector('.g-B'); if(b) b.style.clipPath = `inset(${(100*leftMs/(G.total*1000)).toFixed(2)}% 0 0 0)`;
+  return {leftMs, sec};
+}
+function gTick(){
+  if(!G.on || G.paused) return;
+  const r = gPaint(); if(!r) return;
+  if(r.sec !== G.lastSec){ G.lastSec = r.sec; if(r.sec<=3 && r.sec>=1) gTone(660, .12); }
+  if(r.leftMs<=0){ gTone(990, .45); try{ navigator.vibrate && navigator.vibrate(200); }catch(e){}
+    const ph = G.phase; if(ph==='ready') gPhase('go', gSecs(G.steps[G.i])); else if(ph==='go') gComplete(G.reps); else gEnter(G.i+1); }
+}
+const gSecs = s => s.kind==='timed' ? s.sec : s.kind==='hold' ? gTarget(s) : 45;
+function gPhase(ph, sec){
+  G.phase = ph; G.total = sec || 0; G.end = Date.now() + G.total*1000; G.lastSec = -1;
+  if(G.paused){ G.paused = false; G.pausedMs += Date.now() - G.pauseAt; }
+  gDraw();
+  const s = G.steps[G.i], nxt = G.steps[G.i+1];
+  if(ph==='work') gSay(`${gTitle(s)}. ${s.fixed ? s.fixed + ' reps' : 'Aim for ' + G.reps}.`);
+  else if(ph==='ready') gSay(`Get ready. ${gTitle(s)}.`);
+  else if(ph==='go') gSay('Go.');
+  else if(ph==='rest') gSay(`Rest. Next, ${gTitle(nxt)}.`);
+  else if(ph==='done') gSay('Workout done. Well done.');
+}
+function gEnter(i){
+  if(i >= G.steps.length){ G.i = G.steps.length - 1; return gPhase('done'); }
+  G.i = Math.max(0, i); const s = G.steps[G.i];
+  G.reps = s.kind==='timed' ? 0 : (gLogged(s) || gTarget(s));
+  if(s.kind==='reps' && !gPref.auto) gPhase('work'); else gPhase('ready', 5);
+}
+function gComplete(value){
+  const s = G.steps[G.i];
+  if(s.log && value>0){
+    logs[G.key] = logs[G.key] || {}; const arr = logs[G.key][s.id] = logs[G.key][s.id] || [];
+    if(!(arr[s.k]>0)){ G.count.sets++; G.count.reps += s.kind==='hold' ? 0 : value; } else if(s.kind!=='hold') G.count.reps += value - arr[s.k];
+    arr[s.k] = value; for(let j=0;j<arr.length;j++) if(arr[j]==null) arr[j] = 0;
+    store.set('htp-log', logs);
+  }
+  if(s.rest>0 && G.i < G.steps.length-1) gPhase('rest', s.rest); else gEnter(G.i+1);
+}
+async function gWake(){ try{ if('wakeLock' in navigator && G.on && document.visibilityState==='visible') G.lock = await navigator.wakeLock.request('screen'); }catch(e){} }
+function gStart(){
+  G.key = dateKey(sel); G.steps = gBuild(); if(!G.steps.length) return;
+  try{ actx = actx || new (window.AudioContext||window.webkitAudioContext)(); actx.resume && actx.resume(); }catch(e){}
+  stopTimer();
+  G.on = true; G.paused = false; G.pausedMs = 0; G.t0 = Date.now(); G.count = {sets:0, reps:0};
+  G.el.hidden = false; document.body.style.overflow = 'hidden';
+  // pick up where today's log stops, so a restart doesn't repeat finished sets
+  const any = G.steps.some(s=>gLogged(s)>0); let first = 0;
+  if(any){ first = G.steps.findIndex(s=>s.log && !gLogged(s)); if(first<0) first = G.steps.findIndex(s=>s.group==='Finisher'); if(first<0) first = G.steps.length; }
+  clearInterval(G.int); G.int = setInterval(gTick, 100);
+  gWake(); gEnter(first);
+}
+function gStop(){
+  G.on = false; clearInterval(G.int); G.int = null; G.el.hidden = true; G.el.innerHTML = ''; document.body.style.overflow = '';
+  try{ 'speechSynthesis' in window && speechSynthesis.cancel(); }catch(e){}
+  try{ G.lock && G.lock.release(); }catch(e){} G.lock = null;
+  render();
+}
+function gPause(on){
+  if(on === G.paused || G.phase==='done') return;
+  if(on){ G.paused = true; G.pauseAt = Date.now(); G.left = Math.max(0, G.end - Date.now()); }
+  else { G.paused = false; G.pausedMs += Date.now() - G.pauseAt; G.end = Date.now() + G.left; }
+  G.el.querySelectorAll('[data-act="pause"]').forEach(b=>b.textContent = G.paused ? 'Resume' : 'Pause');
+}
+function gAct(act){
+  const s = G.steps[G.i], ph = G.phase;
+  if(act==='end') return gStop();
+  if(ph==='done') return;
+  if(act==='done' && ph==='work') return gComplete(G.reps);
+  if(act==='minus' || act==='plus'){ G.reps = Math.max(1, Math.min(999, G.reps + (act==='plus'?1:-1))); const n = G.el.querySelector('.g-num'); if(n) n.textContent = G.reps; return; }
+  if(act==='pause') return gPause(!G.paused);
+  if(act==='back') return gEnter(ph==='rest' ? G.i : G.i-1);
+  if(act==='skip'){ if(ph==='ready') return gPhase('go', gSecs(s)); return gEnter(G.i+1); }
+  if(act==='add' && ph==='rest'){ if(G.paused) G.left += 15000; else G.end += 15000; G.total += 15; return gPaint(); }
+  if(act==='voice'){ gPref.voice = !gPref.voice; store.set('htp-guide', gPref); if(!gPref.voice){ try{ speechSynthesis.cancel(); }catch(e){} } else gSay('Voice on.');
+    G.el.querySelectorAll('[data-act="voice"]').forEach(b=>b.textContent = 'Voice ' + (gPref.voice?'on':'off')); return; }
+  if(act==='auto'){ gPref.auto = !gPref.auto; store.set('htp-guide', gPref);
+    if(ph==='rest'){ G.el.querySelectorAll('[data-act="auto"]').forEach(b=>b.textContent = 'Hands-free ' + (gPref.auto?'on':'off')); return; }
+    return gEnter(G.i); }
+  if(act==='video'){ gPause(true); return openVideo(s.id); }
+}
+G.el.addEventListener('click', e=>{
+  if(!G.on) return;
+  const b = e.target.closest('[data-act]');
+  if(b) gAct(b.dataset.act); else if(G.phase==='work') gAct('done');
+});
+document.addEventListener('keydown', e=>{
+  if(!G.on || !document.getElementById('vm').hidden) return;
+  if((e.key===' ' || e.key==='Enter') && G.phase==='work' && !e.target.closest('button')){ e.preventDefault(); gAct('done'); }
+});
+document.addEventListener('visibilitychange', ()=>{ if(G.on && document.visibilityState==='visible') gWake(); });
 </script>
 </body>
 </html>
